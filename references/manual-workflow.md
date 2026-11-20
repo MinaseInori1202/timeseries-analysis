@@ -41,40 +41,11 @@ y <- ts(raw_data$value, start = c(2015, 1), frequency = 12)
 
 > **長季節（日資料的年週期 s≈365、或同時有週季節 7）本 skill 不處理。** 不要用 `ts(frequency = 365)` 去配 SARIMA(s=365)——階數太高、幾乎估不動、也不穩；告知使用者超出涵蓋範圍，並在報告註明未處理季節。
 
-## 2. 時間圖與變異數穩定（log / Box–Cox）
+## 2. 缺失值處理（給使用者選項，由使用者決定）
 
-先畫原始序列的時間圖，看趨勢、季節、循環與變異數是否隨水準放大：
+> 流程上，缺失值在資料健康檢查（與要做預測時的預測設定）之後、視覺化之前處理（SKILL.md 第 2 階段）；有樣本外資料時只對訓練段判斷與補值。程式上補值函數需要 `ts` 物件，所以本檔放在建立 ts 之後。
 
-```r
-plot(y, col = "steelblue", lwd = 1.5,
-     main = "", ylab = "數值（單位）", xlab = "時間")   # 不放圖內主標題，圖名由 fig-cap 在下方給
-```
-
-**判斷是否需要 log 轉換**：若序列呈**指數成長**、或季節波動幅度隨水準等比放大（乘法型季節），
-先取對數把它轉成近似線性趨勢、加法型季節，穩定變異數後再往下做：
-
-```r
-log_y <- log(y)     # 指數成長 / 乘法季節時使用
-```
-
-**判斷時要用圖與量化數字（不要只憑感覺）**：先看原始尺度的時間圖（上面的 `plot(y)`）與季節圖（`forecast::ggseasonplot(y, continuous = TRUE)`），再量化逐年年內全距相對於年平均的放大倍數，轉換前後各算一次：
-
-```r
-yr <- floor(time(y))                                   # 月、季資料的年份
-rng <- tapply(y, yr, function(z) diff(range(z)))       # 逐年年內全距
-mu  <- tapply(y, yr, mean)                             # 逐年平均水準
-rbind(range = rng, mean = mu)                          # 全距放大速度 > 水準放大速度 → 乘法型、需要轉換
-```
-
-> 解讀提醒：log 轉換不是為了好看，而是讓「變異數固定」這個平穩性前提更接近成立；
-> 之後的差分、ADF、ARIMA 都在 log 尺度上進行，預測值最後再 `exp()` 轉回原尺度並說明。
-
-（股價／價格型資產請改用對數報酬 `diff(log(price))`，見 SKILL.md 特例；
-報酬序列可再用 `FinTS::ArchTest()` 檢定 ARCH 效果／波動聚集。）
-
-## 3. 缺失值處理（給使用者選項，由使用者決定）
-
-有缺失時，先判斷缺失是否帶有資訊（如假日休息），再把選項與依據簡述給使用者（完整選項表見 SKILL.md 第 4 階段，依據為 fpp3 §13.9、`arima()` 說明文件、`forecast::na.interp()` 說明文件、Moritz & Bartz-Beielstein 2017）。選定方法後的寫法：
+有缺失時，先判斷缺失是否帶有資訊（如假日休息），再把選項與依據簡述給使用者（完整選項表見 SKILL.md 第 2 階段，依據為 fpp3 §13.9、`arima()` 說明文件、`forecast::na.interp()` 說明文件、Moritz & Bartz-Beielstein 2017）。選定方法後的寫法：
 
 ```r
 # 選項 A：不補，直接建模（arima() 在 method = "ML" 下可處理 NA）
@@ -92,7 +63,39 @@ y <- zoo::na.approx(y)            # 或 forecast::na.interp(y)
 # y <- imputeTS::na_seasplit(y)
 ```
 
-偏離值只用時間圖與箱形圖目視（本 skill 不做異常值的統計檢驗）；被看到的點不等於資料錯誤，是否處理要有領域理由，並在報告記錄。
+偏離值只用時間圖目視（本 skill 不做異常值的統計檢驗）；被看到的點不等於資料錯誤，是否處理要有領域理由，並在報告記錄。
+
+## 3. 時間圖與變異數穩定（log / Box–Cox）
+
+先畫原始序列的時間圖，看趨勢、季節、循環與變異數是否隨水準放大：
+
+```r
+plot(y, col = "steelblue", lwd = 1.5,
+     main = "", ylab = "數值（單位）", xlab = "時間")   # 不放圖內主標題，圖名由 fig-cap 在下方給
+```
+
+**判斷是否需要 log 轉換**：若序列呈**指數成長**、或季節波動幅度隨水準等比放大（乘法型季節），
+先取對數把它轉成近似線性趨勢、加法型季節，穩定變異數後再往下做：
+
+```r
+log_y <- log(y)     # 指數成長 / 乘法季節時使用
+```
+
+**判斷時要用圖與量化數字（不要只憑感覺）**：先看原始尺度的時間圖（上面的 `plot(y)`）與季節圖（`forecast::ggseasonplot(y, continuous = TRUE)`），再量化「波動幅度是否隨水準增大」：把序列切成連續的數段（有年週期的月、季資料以「年」為一段，讓每段含完整季節；沒有年週期或不到兩年時，切成等長的連續數段），計算各段的**標準差（波動幅度）與平均（水準）**，看標準差是否隨平均上升，轉換前後各算一次：
+
+```r
+# 分段：有年週期且至少兩年 → 以年為一段；否則切成等長的連續數段（段數在報告註明）
+seg <- if (frequency(y) > 1 && length(y) >= 2 * frequency(y)) floor(time(y)) else cut(seq_along(y), breaks = 5, labels = FALSE)
+s  <- tapply(y, seg, sd)                                # 各段標準差（波動幅度）
+mu <- tapply(y, seg, mean)                              # 各段平均（水準）
+rbind(sd = s, mean = mu)                                # 標準差隨平均上升 → 變異數隨水準增大，考慮對數／Box–Cox
+```
+
+> 解讀提醒：log 轉換不是為了好看，而是讓「變異數固定」這個平穩性前提更接近成立；
+> 之後的差分、ADF、ARIMA 都在 log 尺度上進行，預測值最後再 `exp()` 轉回原尺度並說明。
+
+（股價／價格型資產請改用對數報酬 `diff(log(price))`，見 SKILL.md 特例；
+報酬序列可再用 `FinTS::ArchTest()` 檢定 ARCH 效果／波動聚集。）
 
 ## 4. 視覺化與結構識別（ACF / PACF / EACF / ar）
 
@@ -100,7 +103,7 @@ y <- zoo::na.approx(y)            # 或 forecast::na.interp(y)
 
 ```r
 # 最方便：一次畫出「序列圖 + ACF + PACF」，定階時很好用
-forecast::ggtsdisplay(y, main = "")
+forecast::ggtsdisplay(y, lag.max = 20, main = "")
 
 # 或分開畫：
 par(mfrow = c(1, 2))
@@ -131,7 +134,7 @@ ar(y, method = "mle")             # 以 AIC 自動選 AR 階數（可解釋性�
 **第一步：先畫圖，選 c 或 ct 設定。** 有明顯趨勢 → ct（含常數與趨勢）；沒有明顯趨勢、圍繞某個固定水準 → c（只含常數）。ADF 與 KPSS 用對應設定（c 對 `Level`、ct 對 `Trend`）：
 
 ```r
-ggtsdisplay(y)                                   # 先看圖：序列圖、ACF、PACF
+ggtsdisplay(y, lag.max = 20)                                   # 先看圖：序列圖、ACF、PACF
 
 # 有明顯趨勢（ct）
 fUnitRoots::adfTest(y, lags = 1, type = "ct")    # 落後期數 lags 依 PACF 判斷（Tsay 講義例：由一階差分序列的樣本 PACF 選 p）
@@ -159,10 +162,10 @@ tseries::kpss.test(y, null = "Trend")
 不平穩就差分。**一般差分階數 d 的判斷：先看圖，再用 ADF＋KPSS 的四種情況判斷**。**若使用者選擇處理季節效應**，d 要對「季節差分後」的序列判斷（原序列的檢定受季節與趨勢干擾；季節的處理見下一小節）；**預設（不處理季節）**則對原序列判斷，並在報告註明季節性可能干擾檢定結果：
 
 ```r
-ggtsdisplay(y)                                   # 先看圖：ACF 緩慢遞減 → 提示仍不平穩
+ggtsdisplay(y, lag.max = 20)                                   # 先看圖：ACF 緩慢遞減 → 提示仍不平穩
 # 依圖選 c／ct，兩個檢定都做（見上）→ 依四種情況判讀
 y_d <- diff(y, differences = 1)                  # 情況二：再做一般差分
-ggtsdisplay(y_d)                                 # 差分後重新看圖、重新選 c／ct（差分後常見為圍繞固定水準 → c），兩個檢定再做一次
+ggtsdisplay(y_d, lag.max = 20)                                 # 差分後重新看圖、重新選 c／ct（差分後常見為圍繞固定水準 → c），兩個檢定再做一次
 # 若使用者選擇處理季節：先 y_s <- diff(y, lag = 12)（季資料 lag = 4），把上面的 y 換成 y_s
 ```
 
@@ -184,8 +187,8 @@ ggtsdisplay(y_d)                                 # 差分後重新看圖、重�
 library(forecast)
 fit <- auto.arima(y)                       # 讓套件自動選階
 arimaorder(fit)                            # c(p, d, q, P, D, Q, m)：讀其中的 D 當建議
-ggtsdisplay(y)                             # 附圖一：原序列的序列圖、ACF、PACF
-ggtsdisplay(diff(y, lag = 12))             # 附圖二：季節差分後（月資料 lag = 12；季資料 lag = 4）
+ggtsdisplay(y, lag.max = 20)                             # 附圖一：原序列的序列圖、ACF、PACF
+ggtsdisplay(diff(y, lag = 12), lag.max = 20)             # 附圖二：季節差分後（月資料 lag = 12；季資料 lag = 4）
 ```
 
 - **這只是套件自動選階的建議**：`auto.arima()` 預設用套件內建的季節強度判準（不是單根檢定）。**實測 log(AirPassengers)**：建議 D = 1（`arimaorder` 為 0,1,1,0,1,1,12）。

@@ -5533,9 +5533,9 @@ border-bottom: none !important;
   </ul></li>
   <li><a href="#前處理與平穩性" id="toc-前處理與平穩性" class="nav-link" data-scroll-target="#前處理與平穩性"><span class="header-section-number">4</span> 前處理與平穩性</a>
   <ul class="collapse">
-  <li><a href="#視覺化探索" id="toc-視覺化探索" class="nav-link" data-scroll-target="#視覺化探索"><span class="header-section-number">4.1</span> 視覺化探索</a></li>
-  <li><a href="#變異數穩定對數轉換與-boxcox" id="toc-變異數穩定對數轉換與-boxcox" class="nav-link" data-scroll-target="#變異數穩定對數轉換與-boxcox"><span class="header-section-number">4.2</span> 變異數穩定：對數轉換與 Box–Cox</a></li>
-  <li><a href="#缺失值" id="toc-缺失值" class="nav-link" data-scroll-target="#缺失值"><span class="header-section-number">4.3</span> 缺失值</a></li>
+  <li><a href="#缺失值" id="toc-缺失值" class="nav-link" data-scroll-target="#缺失值"><span class="header-section-number">4.1</span> 缺失值</a></li>
+  <li><a href="#視覺化探索" id="toc-視覺化探索" class="nav-link" data-scroll-target="#視覺化探索"><span class="header-section-number">4.2</span> 視覺化探索</a></li>
+  <li><a href="#變異數穩定對數轉換與-boxcox" id="toc-變異數穩定對數轉換與-boxcox" class="nav-link" data-scroll-target="#變異數穩定對數轉換與-boxcox"><span class="header-section-number">4.3</span> 變異數穩定：對數轉換與 Box–Cox</a></li>
   <li><a href="#平穩性檢定adf-與-kpss-兩者都做" id="toc-平穩性檢定adf-與-kpss-兩者都做" class="nav-link" data-scroll-target="#平穩性檢定adf-與-kpss-兩者都做"><span class="header-section-number">4.4</span> 平穩性檢定：ADF 與 KPSS 兩者都做</a></li>
   <li><a href="#季節效應預設不處理" id="toc-季節效應預設不處理" class="nav-link" data-scroll-target="#季節效應預設不處理"><span class="header-section-number">4.5</span> 季節效應：預設不處理</a></li>
   </ul></li>
@@ -5781,7 +5781,7 @@ r_t - \mu = a_t,\qquad a_t = \sigma_t\,\epsilon_t,\qquad \sigma_t^2 = \omega + \
 </section>
 <section id="金融資產價格預設轉成對數報酬" class="level2" data-number="3.3">
 <h2 data-number="3.3" class="anchored" data-anchor-id="金融資產價格預設轉成對數報酬"><span class="header-section-number">3.3</span> 金融資產價格：預設轉成對數報酬</h2>
-<p>股價、指數、匯率、加密貨幣收盤價等，<strong>預設先轉成對數報酬</strong>（今天的對數價格減昨天的對數價格，約等於漲跌的百分比），並告知使用者理由：<strong>通常是報酬率才能拿來做時間序列分析；價格只在特定情境（例如共整合、配對交易的長期關係）才會直接分析</strong>。價格通常不平穩、起伏隨價位放大；報酬率通常近似平穩，才適合進入後面的檢定與建模。轉換後的報酬要完整重跑探索：時間圖、五數統計與箱形圖、六項摘要（平均、標準差、偏態、超額峰態、最小、最大）、報酬與報酬平方的 ACF，以及 ADF 與 KPSS。</p>
+<p>股價、指數、匯率、加密貨幣收盤價等，<strong>預設先轉成對數報酬</strong>（今天的對數價格減昨天的對數價格，約等於漲跌的百分比），並告知使用者理由：<strong>通常是報酬率才能拿來做時間序列分析；價格只在特定情境（例如共整合、配對交易的長期關係）才會直接分析</strong>。價格通常不平穩、起伏隨價位放大；報酬率通常近似平穩，才適合進入後面的檢定與建模。轉換後的報酬要完整重跑探索：價格走勢圖（第一張圖）與報酬時間圖、六項摘要（平均、標準差、偏態、超額峰態、最小、最大）、報酬與報酬平方的 ACF，以及 ADF 與 KPSS。</p>
 <p>出處：Tsay 講義 lec3、lec4；本 skill 的做法。</p>
 </section>
 </section>
@@ -5790,48 +5790,8 @@ r_t - \mu = a_t,\qquad a_t = \sigma_t\,\epsilon_t,\qquad \sigma_t^2 = \omega + \
 <div class="chapter-lead">
 <p>先看圖、再用 ADF 與 KPSS 兩個檢定判斷平穩，結果衝突時並陳而不自動決定</p>
 </div>
-<section id="視覺化探索" class="level2" data-number="4.1">
-<h2 data-number="4.1" class="anchored" data-anchor-id="視覺化探索"><span class="header-section-number">4.1</span> 視覺化探索</h2>
-<p>預設用下面這組圖，從整體看到細節：</p>
-<table class="caption-top table">
-<colgroup>
-<col style="width: 50%">
-<col style="width: 50%">
-</colgroup>
-<thead>
-<tr class="header">
-<th>圖</th>
-<th>看什麼</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td><strong>時間圖</strong></td>
-<td>趨勢、有無規律起伏、突發異常、起伏幅度是否隨水準變化</td>
-</tr>
-<tr class="even">
-<td><strong>落後圖與 ACF</strong></td>
-<td>與過去各期的關聯強度；季節資料在季節週期倍數有高峰</td>
-</tr>
-<tr class="odd">
-<td><strong>箱形圖</strong></td>
-<td>分布與可能的離群值（被標示的點只是「相對偏遠」）</td>
-</tr>
-</tbody>
-</table>
-<p>季節圖（每年疊在一起）與子序列圖（同月份放在一起）<strong>預設不畫</strong>，因為預設不處理季節；使用者選擇處理季節時才補畫。</p>
-</section>
-<section id="變異數穩定對數轉換與-boxcox" class="level2" data-number="4.2">
-<h2 data-number="4.2" class="anchored" data-anchor-id="變異數穩定對數轉換與-boxcox"><span class="header-section-number">4.2</span> 變異數穩定：對數轉換與 Box–Cox</h2>
-<ul>
-<li><strong>什麼時候用</strong>：序列水準越高、起伏越大時（例如旅客人數越多，季節高低差越大）。λ = 0 就是取對數。</li>
-<li><strong>怎麼判斷</strong>：先在原始尺度看逐年年內全距（最大減最小）是否隨年平均放大，轉換前後各算一次放大倍數；轉換前放大很多、轉換後明顯縮小，才有效。<strong>全距沒有隨水準放大就不該硬轉</strong>。取對數後的變化可解讀為比例（百分比）變化。</li>
-<li><strong>講義的理由</strong>：處理指數成長（對數後成長變直線）與穩定變異。</li>
-</ul>
-<p>出處：Tsay 講義 lec3；fpp3 §3.1；量化檢查為本 skill 的做法。</p>
-</section>
-<section id="缺失值" class="level2" data-number="4.3">
-<h2 data-number="4.3" class="anchored" data-anchor-id="缺失值"><span class="header-section-number">4.3</span> 缺失值</h2>
+<section id="缺失值" class="level2" data-number="4.1">
+<h2 data-number="4.1" class="anchored" data-anchor-id="缺失值"><span class="header-section-number">4.1</span> 缺失值</h2>
 <table class="caption-top table">
 <colgroup>
 <col style="width: 50%">
@@ -5898,6 +5858,42 @@ r_t - \mu = a_t,\qquad a_t = \sigma_t\,\epsilon_t,\qquad \sigma_t^2 = \omega + \
 </tbody>
 </table>
 <p>缺失比例與連續成段沒有文獻給出固定門檻；缺口很長或集中在特定時段時，任何內插都是在猜，要註明。</p>
+</section>
+<section id="視覺化探索" class="level2" data-number="4.2">
+<h2 data-number="4.2" class="anchored" data-anchor-id="視覺化探索"><span class="header-section-number">4.2</span> 視覺化探索</h2>
+<p>預設用下面這組圖，從整體看到細節：</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 50%">
+<col style="width: 50%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>圖</th>
+<th>看什麼</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>時間圖</strong></td>
+<td>趨勢、有無規律起伏、突發異常、起伏幅度是否隨水準變化</td>
+</tr>
+<tr class="even">
+<td><strong>落後圖與 ACF</strong></td>
+<td>與過去各期的關聯強度；季節資料在季節週期倍數有高峰</td>
+</tr>
+</tbody>
+</table>
+<p>季節圖（每年疊在一起）與子序列圖（同月份放在一起）<strong>預設不畫</strong>，因為預設不處理季節；使用者選擇處理季節時才補畫。</p>
+</section>
+<section id="變異數穩定對數轉換與-boxcox" class="level2" data-number="4.3">
+<h2 data-number="4.3" class="anchored" data-anchor-id="變異數穩定對數轉換與-boxcox"><span class="header-section-number">4.3</span> 變異數穩定：對數轉換與 Box–Cox</h2>
+<ul>
+<li><strong>什麼時候用</strong>：序列水準越高、起伏越大時（例如旅客人數越多，季節高低差越大）。λ = 0 就是取對數。</li>
+<li><strong>怎麼判斷</strong>：目的是看變異數（波動幅度）是否隨水準增大。先看原始尺度的圖，再把序列切成連續數段（月、季資料以年為段，否則等長分段），比較各段標準差與平均，轉換前後各算一次；轉換前標準差隨平均上升、轉換後不再上升，才有效。<strong>波動幅度沒有隨水準增大就不該硬轉</strong>。取對數後的變化可解讀為比例（百分比）變化。</li>
+<li><strong>講義的理由</strong>：處理指數成長（對數後成長變直線）與穩定變異。</li>
+</ul>
+<p>出處：Tsay 講義 lec3；fpp3 §3.1；量化檢查為本 skill 的做法。</p>
 </section>
 <section id="平穩性檢定adf-與-kpss-兩者都做" class="level2" data-number="4.4">
 <h2 data-number="4.4" class="anchored" data-anchor-id="平穩性檢定adf-與-kpss-兩者都做"><span class="header-section-number">4.4</span> 平穩性檢定：ADF 與 KPSS 兩者都做</h2>
@@ -6065,7 +6061,7 @@ r_t - \mu = a_t,\qquad a_t = \sigma_t\,\epsilon_t,\qquad \sigma_t^2 = \omega + \
 <section id="配適與比較" class="level2" data-number="5.2">
 <h2 data-number="5.2" class="anchored" data-anchor-id="配適與比較"><span class="header-section-number">5.2</span> 配適與比較</h2>
 <ol type="1">
-<li>列出 <strong>2–3 個以上的候選模型</strong>，與使用者確認；<strong>候選模型一律不含 ARMA(0,0)（常數均值）</strong>，即使 ACF／PACF／EACF 看不出結構或 <code>auto.arima()</code> 選出 (0,0) 也不列入，改從 AR(1)、MA(1)、ARMA(1,1) 與 EACF 的候選中選；可用 <code>auto.arima()</code>（以 BIC）當對照，但不取代人工定階。</li>
+<li>只列 <strong>2–3 個候選模型</strong>（不做 (p,q) 網格搜尋），與使用者確認；<strong>候選模型一律不含 ARMA(0,0)（常數均值）</strong>，即使 ACF／PACF／EACF 看不出結構或 <code>auto.arima()</code> 選出 (0,0) 也不列入，改從 AR(1)、MA(1)、ARMA(1,1) 與 EACF 的候選中挑 2–3 個；可用 <code>auto.arima()</code>（以 BIC）當對照，但不取代人工定階。</li>
 <li>用 <code>forecast::Arima()</code> 配適；取過對數時用 <code>lambda = 0</code>，預測才會自動反轉換回原尺度。</li>
 <li><strong>先問使用者選模準則</strong>，再用 AIC、BIC、對數概似比較：
 <ul>
@@ -6160,11 +6156,11 @@ r_t - \mu = a_t,\qquad a_t = \sigma_t\,\epsilon_t,\qquad \sigma_t^2 = \omega + \
 <div>
 <pre class="mermaid mermaid-js">flowchart TD
   S([&quot;收到帶時間戳記的資料&quot;]) --&gt; H[&quot;1 資料健康檢查&lt;br/&gt;多個數值欄位先問分析哪個；&lt;br/&gt;多對象長表先問是否整理&quot;]
-  H --&gt; ST[&quot;2 建立時間資料結構&quot;] --&gt; V[&quot;3 視覺化探索（原始尺度）&lt;br/&gt;時間圖、落後圖／ACF、箱形圖&quot;] --&gt; VR{&quot;年內全距&lt;br/&gt;隨年平均放大？&quot;}
-  VR --&gt;|是| LOG[&quot;對數或 Box–Cox&quot;] --&gt; MISS{&quot;資料有缺失？&quot;}
-  VR --&gt;|否| MISS
-  MISS --&gt;|是| IMP[&quot;4 缺失值處理&lt;br/&gt;先判斷是否帶有資訊；&lt;br/&gt;選項與依據由使用者選&quot;] --&gt; SEAS
-  MISS --&gt;|否| SEAS{&quot;明顯季節性？&quot;}
+  H --&gt; PS[&quot;預測設定（要做預測時）&lt;br/&gt;截止日、訓練窗、預測期數與上限、預測方式&quot;] --&gt; MISS{&quot;資料有缺失？&quot;}
+  MISS --&gt;|是| IMP[&quot;2 缺失值處理&lt;br/&gt;先判斷是否帶有資訊；&lt;br/&gt;選項與依據由使用者選；有樣本外時只用訓練段&quot;] --&gt; ST
+  MISS --&gt;|否| ST[&quot;3 建立時間資料結構&quot;] --&gt; V[&quot;4 視覺化探索（原始尺度）&lt;br/&gt;原始序列走勢圖（第一張圖）、落後圖／ACF&quot;] --&gt; VR{&quot;變異數（波動幅度）&lt;br/&gt;隨水準增大？&quot;}
+  VR --&gt;|是| LOG[&quot;對數或 Box–Cox&quot;] --&gt; SEAS
+  VR --&gt;|否| SEAS{&quot;明顯季節性？&quot;}
   SEAS --&gt;|是| SN[&quot;季節性處理確認&lt;br/&gt;預設不處理，是否納入季節差分 D？&quot;]
   SN --&gt;|要處理| SD[&quot;給 D 的建議（auto.arima）&lt;br/&gt;附 ACF／PACF 圖，由使用者決定&quot;] --&gt; STA
   SN --&gt;|不處理| STA
@@ -6342,60 +6338,66 @@ r_t - \mu = a_t,\qquad a_t = \sigma_t\,\epsilon_t,\qquad \sigma_t^2 = \omega + \
 <td>使用者確認分析對象</td>
 </tr>
 <tr class="even">
-<td>2–3 結構與視覺化</td>
+<td>預測設定（要做預測時）</td>
+<td>資料起訖與筆數</td>
+<td>截止日、訓練窗、預測期數、預測方式（寫入方法章）</td>
+<td>使用者決定</td>
+</tr>
+<tr class="odd">
+<td>2 缺失值</td>
+<td>含缺失序列（有樣本外時只用訓練段）</td>
+<td>處理方式、補了哪些、理由</td>
+<td>使用者決定</td>
+</tr>
+<tr class="even">
+<td>3–4 結構與視覺化</td>
 <td>時間序列</td>
-<td>時間圖、ACF、箱形圖</td>
+<td>原始序列走勢圖（第一張圖）、ACF</td>
 <td>使用者確認</td>
 </tr>
 <tr class="odd">
 <td>變異數穩定</td>
 <td>原始尺度</td>
-<td>年內全距放大倍數；必要時對數轉換前後對照</td>
-<td>放大才轉換</td>
+<td>各段標準差與平均；必要時對數轉換前後對照</td>
+<td>標準差隨水準上升才轉換</td>
 </tr>
 <tr class="even">
-<td>4 缺失值</td>
-<td>含缺失序列</td>
-<td>處理方式、補了哪些、理由</td>
-<td>使用者決定</td>
-</tr>
-<tr class="odd">
 <td>5 平穩性</td>
 <td>序列圖、ACF／PACF</td>
 <td>ADF 與 KPSS 結果表（含 c／ct 設定、落後期數）、四種情況判讀</td>
 <td>情況一進入定階；二差分重驗；三、四由使用者決定</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td>識別階數</td>
 <td>平穩序列</td>
 <td>序列圖＋ACF＋PACF、EACF 表與判讀</td>
 <td>列出 2–3 個候選</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td>6 配適與比較</td>
 <td>候選模型</td>
 <td>AIC、BIC、對數概似比較表</td>
 <td>依使用者選定的準則選模型</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td>7 殘差診斷</td>
 <td>殘差</td>
 <td>殘差 ACF、Ljung–Box、殘差平方 ACF、ARCH 檢定</td>
 <td>第一層未過回到階數識別；第二層有效應接 GARCH</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td>GARCH</td>
 <td>均值方程殘差</td>
 <td>殘差平方 PACF、模型比較、參數表（模型式寫在解讀）、標準化殘差檢查與 QQ 圖</td>
 <td>Q 檢定與分布假設通過才進預測</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td>8 預測</td>
 <td>最終模型</td>
 <td>預測圖與 95% 預測區間、預測表；有 GARCH 時加條件標準差圖</td>
 <td>區間寫明「在模型成立的前提下」</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td>交付</td>
 <td>全部結果</td>
 <td>報告（<code>.qmd</code> 與編譯的 <code>.html</code>）、乾淨資料</td>
@@ -6545,7 +6547,7 @@ r_t - \mu = a_t,\qquad a_t = \sigma_t\,\epsilon_t,\qquad \sigma_t^2 = \omega + \
 <li>Kwiatkowski, D., Phillips, P. C. B., Schmidt, P., &amp; Shin, Y. (1992). Testing the null hypothesis of stationarity against the alternative of a unit root. <em>Journal of Econometrics</em>, 54, 159–178.</li>
 <li>Burnham, K. P., &amp; Anderson, D. R. (2004). Multimodel inference: Understanding AIC and BIC in model selection. <em>Sociological Methods &amp; Research</em>, 33(2), 261–304.</li>
 <li>Moritz, S., &amp; Bartz-Beielstein, T. (2017). imputeTS: Time series missing value imputation in R. <em>The R Journal</em>, 9(1), 207–218.</li>
-<li>Dickey, D. A., &amp; Fuller, W. A. (1979)（單位根檢定）；Engle, R. F. (1982)（ARCH）；Bollerslev, T. (1986)（GARCH）；Guerrero, V. M. (1993)（Box–Cox 參數選擇）；Tukey, J. W. (1977). <em>Exploratory Data Analysis</em>（箱形圖）。以上以名稱註記，未逐篇查證。</li>
+<li>Dickey, D. A., &amp; Fuller, W. A. (1979)（單位根檢定）；Engle, R. F. (1982)（ARCH）；Bollerslev, T. (1986)（GARCH）；Guerrero, V. M. (1993)（Box–Cox 參數選擇）。以上以名稱註記，未逐篇查證。</li>
 </ul>
 <section id="本指南與-skill-檔案的對照" class="level3" data-number="7.2.1">
 <h3 data-number="7.2.1" class="anchored" data-anchor-id="本指南與-skill-檔案的對照"><span class="header-section-number">7.2.1</span> 本指南與 skill 檔案的對照</h3>

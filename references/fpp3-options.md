@@ -66,7 +66,7 @@ tsbl <- tsbl |> mutate(log_return = difference(log(close)))
 ```
 
 之後把 `log_return` 當成新對象**完整重跑探索分析**，別只轉換就跳過（見 `references/financial.md`的「必做清單」）：
-報酬時間圖、**五數統計 + 箱形圖**、六項摘要表（mean/sd/skewness/excess kurtosis/min/max）、
+價格走勢圖、報酬時間圖、六項摘要表（mean/sd/skewness/excess kurtosis/min/max）、
 `ACF(log_return)` 與 `ACF(log_return^2)` ＋ `FinTS::ArchTest()`、以及**平穩性一律做 ADF 與 KPSS 兩者**（見 SKILL.md 第 5 階段；fpp3 版的 KPSS 為 `features(., unitroot_kpss)`）。
 
 ## 2. 視覺化探索
@@ -130,11 +130,11 @@ tsbl |> autoplot(box_cox(value, lambda))
 > ```r
 > tsbl |> autoplot(value)       # 時間圖：季節起伏的幅度是否隨整體水準放大（乘法型）、還是大致固定（加法型）
 > tsbl |> gg_season(value)      # 季節圖：各年曲線平行（加法型）或逐年張開（乘法型）
-> # 量化：逐年年內全距 vs 年平均水準（把 Quarter 換成你的時間欄；轉換前後各算一次）
+> # 量化：各段標準差 vs 各段平均（以年為段；把 Quarter 換成你的時間欄；沒有年週期時改成等長分段；轉換前後各算一次）
 > tsbl |> as_tibble() |> mutate(yr = year(Quarter)) |> group_by(yr) |>
->   summarise(range = diff(range(value)), mean = mean(value))
+>   summarise(sd = sd(value), mean = mean(value))
 > ```
-> 實測（`aus_production` 啤酒 1992–2010）：年內全距 122 → 90，年平均 451 → 430，**幅度沒有隨水準放大**，Guerrero 卻給出 λ = −0.900（貼著邊界）、套進模型後預測全為 `NA`——這種資料就不該轉換。報告要把圖與這組數字都放進去。
+> 實測（`aus_production` 啤酒 1992–2010，當時以年內全距衡量波動幅度）：年內全距 122 → 90，年平均 451 → 430，**幅度沒有隨水準放大**，Guerrero 卻給出 λ = −0.900（貼著邊界）、套進模型後預測全為 `NA`——這種資料就不該轉換。報告要把圖與這組數字都放進去。
 
 ## 5. tidy forecasting workflow（fable 六步驟）
 
