@@ -1,0 +1,205 @@
+---
+title: "時間序列初步分析報告"
+author: "（分析者）"
+date: "`r Sys.Date()`"
+format:
+  html:
+    theme: cosmo                # 乾淨、學術友善的 Bootswatch 主題（litera / flatly 亦可）
+    embed-resources: true       # 產生「單一自足檔」：CSS/JS/圖片全內嵌，方便寄送/分享（字型仍需對方電腦有標楷體）
+    fontsize: 1.05rem           # 內文基準字級 ~17px（可讀性：16–18px）
+    linestretch: 1.7            # 標楷體較細，行高拉到 1.7 較好讀
+    # 中英文分開字型：英數→Times New Roman、中文→標楷體（瀏覽器逐字挑字型）
+    mainfont: "'Times New Roman', '標楷體', 'DFKai-SB', 'KaiTi', 'BiauKai', serif"
+    monofont: "'Source Code Pro', SFMono-Regular, Menlo, Consolas, monospace"
+    toc: true
+    toc-depth: 3
+    toc-location: left
+    number-sections: true
+    code-fold: false
+    code-block-bg: true
+    highlight-style: github
+    fig-width: 7
+    fig-height: 4.5
+    fig-align: center
+    fig-cap-location: bottom
+    tbl-cap-location: top
+    grid:
+      body-width: 900px         # 內文寬度，讓每行約 70–90 字、不會太寬難讀
+execute:
+  echo: false                   # 預設不顯示程式碼（程式仍在 .qmd 內可重跑）；需要含程式碼版本時，用 quarto render report.qmd -M echo:true -o report-with-code.html
+  warning: false
+  message: false
+lang: zh-TW                     # 繁體中文介面字串（Quarto 的 zh-Hant 會輸出簡體「目录」）；全英文報告改成 en
+crossref:
+  title-delim: "｜"              # 圖表編號與標題的分隔符號（預設為冒號）
+language:
+  title-block-published: "發布於"   # zh-TW 預設為「發佈於」，改成「發布於」
+---
+
+<!--
+  這是 timeseries-analysis skill 的報告骨架。使用方式：
+  1. 依使用者選定的做法（預設為手動流程；使用者選了 fpp3 選項才用該區塊），把不需要的區塊刪除。
+  2. 每個 {r} 區塊填入實際程式碼，讓圖與檢定在 `quarto render` 時真的重跑。
+  3. 每個步驟後面都要補「統計解讀 + 領域直覺」兩層說明（見各段的提示）。
+  4. 編譯：quarto render report.qmd  （或在 R 內 quarto::quarto_render("report.qmd")）
+-->
+
+```{r setup}
+#| include: false
+# 依實際採用的做法載入套件：
+# 預設手動流程：library(tseries); library(forecast); library(zoo); library(TSA)
+# 使用者選了 fpp3 選項時：library(fpp3)
+# 表格：用 flextable(df) |> theme_booktabs() |> ft_fit(df) 出「三線表」（只有上/表頭/下三線、無直線），數值固定小數位（ft_fit 見下）
+library(flextable)
+set_flextable_defaults(font.family = "Times New Roman", font.size = 11)
+
+# 表格欄寬：依各欄最長內容（中文字算 2 個寬度單位）設定，有空間就不換行；過長的欄位上限為 max_in 吋。
+# 用法：flextable(df) |> theme_booktabs() |> ft_fit(df)
+# （autofit() 在瀏覽器以中文字型顯示時會低估寬度、讓「目標變數」這類短標籤被截成兩行，故改用此函式。）
+ft_fit <- function(ft, df, max_in = 3.6) {
+  w <- vapply(seq_along(df), function(j) {
+    cells <- c(names(df)[j], trimws(format(df[[j]], digits = 6)))
+    min(max(nchar(cells, type = "width"), na.rm = TRUE) * 0.095 + 0.3, max_in)
+  }, numeric(1))
+  ft |> set_table_properties(layout = "fixed") |> width(j = seq_along(w), width = w)
+}
+```
+
+# 資料說明與分析方法
+
+<!--
+  以專業、客觀的第三人稱撰寫，不要出現選單與提問、不要提到「skill」或「因無法互動採預設」。
+  本章只寫「計畫採用的分析架構與決策規則」，不寫分析結果（結果留給各結果章節）：
+  - 資料：來源、頻率、時間範圍、樣本數；資料的實質特徵與本分析的研究目的。
+    不要稱它為「經典教學序列」「適合作為教學範例」，不要寫「以便讀者／審稿人複核」。
+  - 分析架構（規劃語氣）：預計進行的步驟、各檢定的 H₀ 與判定準則、選模準則。
+    例：「將以 ADF 檢定判定平穩性（H₀：存在單位根；p < 0.05 則判定平穩，否則再差分並重驗）；
+        模型比較以 BIC 為主要準則。」
+  - 不要在此下結論，如「不做對數轉換」「差分取 d = 1、D = 1」「採 SARIMA(…)」；
+    這些是檢驗後的結果，放到對應章節。
+-->
+
+
+# 資料健康檢查與結構確認
+
+```{r data-check}
+# 讀資料、建立 ts／tsibble、確認頻率與規則間隔。
+# 表 1（資料結構表，可與表 2 用 :::: {.columns} 左右並列）必須含：目標變數名稱與定義、度量單位、觀測筆數、頻率、起訖時間、缺失值個數、非正值（≤ 0）個數。
+# 表 2（摘要統計）必須含：筆數（整數顯示）、平均數、標準差、最小值、Q1、中位數、Q3、最大值（註明單位）。
+# 數值合理性：符號與範圍、最大單月相對變動、單位一致；不做異常值的統計檢驗（偏離值只用箱形圖目視，被看到的點不等於資料錯誤）。
+# 若 min ≤ 0，不可直接取對數，須說明處理方式（平移、Box–Cox 不適用等）。
+```
+
+**解讀：**
+<!-- 只陳述事實與判讀，如「無缺失值，故不需插補」「所有觀測值均大於 0，符合取對數前提」。
+     不要為「沒做的事」辯護或說教（如「硬做插補只會掩蓋檢查」）。 -->
+
+# 視覺化探索
+
+<!-- 順序：先看「原始尺度」的圖，再決定是否轉換；不可先轉換再探索。 -->
+
+```{r eda-plots}
+# 原始尺度：時間圖（plot(y, col = "steelblue", lwd = 1.6, main = "", ylab = "…", xlab = "年")，標題由 fig-cap 給）
+# 季節圖與子序列圖預設不畫；使用者選擇處理季節時才補畫（ggseasonplot(y, continuous = TRUE)、ggsubseriesplot(y)，見 SKILL.md）
+# 觀察：趨勢、有無規律起伏、變異數是否隨水準放大（作為下一章是否轉換的依據）
+```
+
+**解讀：**
+<!-- 趨勢？季節？循環？變異數是否隨水準變化？ -->
+
+# 變異數穩定（必要時）
+
+```{r structure}
+# 只有視覺化與量化證據顯示變異數隨水準放大時才轉換：
+#   量化例：逐年年內全距（或標準差）相對於年平均水準的放大倍數，轉換前後各算一次。
+# 指數成長/乘法季節 → log 轉換；股價 → 對數報酬 diff(log(price))
+# 轉換前後各算一次年內全距，並畫轉換前後對照圖。
+```
+
+**解讀：**
+<!-- 引用上一章的圖與量化數字作為依據，再說明轉換方式 -->
+
+# 轉換後序列的自相關結構與分布
+
+```{r eda-acf}
+# 落後圖、ACF、箱形圖（在轉換後的尺度上）
+# 傳統：acf()/TSA::eacf()；現代：gg_lag()/ACF()
+# 敘述統計表：一般序列 mean/sd/min/max（偏態/峰態留到平穩化後）
+# 股價/報酬：對報酬做「五數統計 fivenum() + 箱形圖」+ 六項摘要表 + ACF(報酬)/ACF(報酬^2)（缺一不可）
+```
+
+**解讀：**
+<!-- ACF 的形狀說明什麼 -->
+
+# 缺失值處理（僅在資料確實有缺失時保留本章）
+
+<!-- 只有資料確實有缺失時，才保留本章並記錄補了哪些、用什麼方法與統計理由（方法先與使用者確認）；
+     沒有缺失就刪掉本章，在資料健康檢查寫一句「無缺失值，不需插補」，此處不再提。 -->
+
+# 平穩性與差分
+
+```{r stationarity}
+# 先畫序列圖與 ACF／PACF，選 c（無明顯趨勢）或 ct（有明顯趨勢）設定；ADF 與 KPSS 兩者都做且設定對應：
+#   ADF：fUnitRoots::adfTest(type = "c" / "ct")（H0=有單根，p 小→平穩）；tseries::adf.test() 預設含常數與趨勢（等同 ct）
+#   KPSS：tseries::kpss.test(null = "Level" / "Trend")（H0=平穩，p 小→不平穩）
+# 結果組合分四種情況：一 ADF 拒絕＋KPSS 不拒絕→平穩；二 ADF 不拒絕＋KPSS 拒絕→非平穩、差分後重驗；
+#   三 兩者都不拒絕→資訊不足，並陳；四 兩者都拒絕→可能趨勢平穩或分數整合，檢查 c／ct 設定，並陳。
+# 可選（使用者選了才用）：fpp3 的 unitroot_kpss／unitroot_ndiffs()／nsdiffs()
+# 股價/報酬：轉對數報酬後仍要跑 ADF 與 KPSS（把統計量與 p 值寫進報告）
+# 季節效應：本 skill 預設不處理，須在報告註明；使用者需要時才處理——以 auto.arima() 選出的 D 當建議，
+#   並附原序列與季節差分後的 ACF／PACF 圖，由使用者決定 D。
+# 一般差分 d：先畫序列的 ACF／PACF；再依 ADF＋KPSS 的四種情況判斷（情況一 d=0；情況二差分後重驗；三、四並陳由使用者決定）。
+#   若使用者選擇處理季節，d 對「季節差分後」的序列判斷；不要用 ndiffs() 預設值（只看 KPSS）；
+#   寫明檢定設定（c 或 ct、落後期數），p 值邊際（約 0.05–0.10）時註明；避免過度差分。
+# 確認平穩後緊接著繪製 ACF 與 PACF 圖以識別 ARMA/SARIMA 階數（可再用 TSA::eacf()）。
+```
+
+**解讀：**
+<!-- 是否平穩？需要幾階差分？ADF 與 KPSS 兩者都要寫，H0 方向相反務必註明；屬情況三、四時並陳 -->
+
+# 模型配適與比較
+
+```{r model-fit}
+# 依 ACF／PACF 列出 2–3 個候選模型，forecast::Arima(y, order = c(p,d,q), seasonal = c(P,D,Q)) 配適；取過對數時用 lambda = 0。
+# 表：各候選模型的 AIC、BIC、對數概似（flextable 三線表）；只比較同一份資料、差分階數相同的模型。
+# 選模準則由使用者選定（預設不替使用者選）。
+```
+
+**解讀：**
+<!-- 說明採用哪個模型、依據哪個準則；不寫選單與提問語氣。 -->
+
+# 殘差診斷
+
+```{r residuals}
+# 第一層：Box.test(residuals(fit), lag = m, type = "Ljung-Box", fitdf = 參數個數)；寫出 H₀／H₁、Q、自由度、p 值。
+# 第二層：殘差平方的 ACF 與 FinTS::ArchTest()；有 ARCH 效應則接 GARCH，沒有就明寫「波動度可視為固定，不需要 GARCH」。
+```
+
+**解讀：**
+<!-- 兩層結論都要寫；未通過的限制如實寫出。 -->
+
+# 預測與預測區間
+
+```{r forecast}
+# fc <- forecast::forecast(fit, h = 預測期數, level = 95)；autoplot(fc) 必附圖例；呈現點預測與 95% 區間（只給 95%）。
+# 取過對數時 Arima(..., lambda = 0)，預測自動反轉換回原尺度（可加 biasadj = TRUE），並在文中寫明。
+# 有接 GARCH 時改用 rugarch::ugarchforecast(fit, n.ahead = h)：fitted(fc) 為點預測、sigma(fc) 為波動度預測，
+#   區間 = 點預測 ± 分位數 × sigma（常態 1.96；Student-t 用 qdist("std", p = 0.975, shape = ...)）；同時呈現波動度預測圖。
+# 使用者要求評估時：按時間順序留出測試集，forecast::accuracy(fc, 測試段)。
+```
+
+**解讀：**
+<!-- 區間在「模型成立」的前提下成立；預測越遠區間越寬；不把區間說成保證。 -->
+
+# 結論與後續建議
+
+<!--
+  - 資料是否平穩、採用的模型與診斷結果、預測結果。
+  - 交付乾淨資料與前處理紀錄。
+-->
+
+<!--
+  注意：預設「不要」加入 sessionInfo / 工作階段資訊附錄。
+  報告中如有中文，一律使用正體中文（繁體，Traditional）。
+-->
+
