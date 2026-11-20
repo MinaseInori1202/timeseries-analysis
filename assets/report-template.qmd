@@ -15,7 +15,8 @@ format:
     toc-depth: 3
     toc-location: left
     number-sections: true
-    code-fold: false
+    code-fold: true             # 程式碼預設收合，讀者可在網頁上點擊展開／收合（需搭配 execute: echo: true）
+    code-summary: "顯示程式碼"    # 收合列的文字（預設為英文 Code，改成中文避免中英混雜）
     code-block-bg: true
     highlight-style: github
     fig-width: 7
@@ -26,7 +27,7 @@ format:
     grid:
       body-width: 900px         # 內文寬度，讓每行約 70–90 字、不會太寬難讀
 execute:
-  echo: false                   # 預設不顯示程式碼（程式仍在 .qmd 內可重跑）；需要含程式碼版本時，用 quarto render report.qmd -M echo:true -o report-with-code.html
+  echo: true                    # 必須為 true，code-fold 才有程式碼可收合；程式碼在網頁上預設收合，點擊即可展開
   warning: false
   message: false
 lang: zh-TW                     # 繁體中文介面字串（Quarto 的 zh-Hant 會輸出簡體「目录」）；全英文報告改成 en
@@ -186,6 +187,8 @@ ft_fit <- function(ft, df, max_in = 3.6) {
 # 有接 GARCH 時改用 rugarch::ugarchforecast(fit, n.ahead = h)：fitted(fc) 為點預測、sigma(fc) 為波動度預測，
 #   區間 = 點預測 ± 分位數 × sigma（常態 1.96；Student-t 用 qdist("std", p = 0.975, shape = ...)）；同時呈現波動度預測圖。
 # 使用者要求評估時：按時間順序留出測試集，forecast::accuracy(fc, 測試段)。
+# 訓練截止日、訓練窗長度、預測期數、預測方式一律採用使用者選定的設定（見 SKILL.md「預測設定」），並寫進「資料說明與分析方法」。
+# 預測圖：點預測要是看得見的線、95% 區間帶、實際值（有樣本外時）；樣本外用底色區隔；日資料橫軸逐日標示日期（月/日）；接 GARCH 時另附條件標準差圖。
 ```
 
 **解讀：**
