@@ -1,0 +1,89 @@
+{
+  "skill_name": "timeseries-analysis",
+  "evals": [
+    {
+      "id": 0,
+      "name": "stock-price-log-return",
+      "prompt": "我有一份台積電近三年的每日收盤價 CSV，欄位是 date 和 close，幫我對這筆資料做時間序列分析。",
+      "expected_output": "不應在開場詢問「可解釋性 vs 預測」的取向。應辨識出這是股價資料，告知將預設轉成對數報酬 log return（diff(log(close))）再分析，並說明理由：通常是報酬率才能拿來做時間序列分析，價格只在特定情境（如共整合、配對交易）才會直接用來分析；提到波動聚集可看報酬平方的 ACF。每個階段做完先給使用者確認。用 R。",
+      "files": []
+    },
+    {
+      "id": 1,
+      "name": "manual-workflow-airpassengers",
+      "prompt": "這是 R 內建的 AirPassengers 資料（1949–1960 每月國際航空乘客數）。我要把結果寫進統計諮詢作業報告，需要嚴謹、能交代統計依據的分析。請幫我做時間序列分析。",
+      "expected_output": "不詢問取向，直接以預設的手動流程進行並逐階段確認：辨識指數成長與乘法季節→建議 log 轉換（先在原始尺度看到變異數隨水準放大並量化）；先看圖選 c 或 ct 設定，再同時做 ADF 與 KPSS 檢定平穩性並依四種情況判讀；資料有明顯季節性時，**告知使用者本 skill 預設不處理季節效應並詢問是否處理**（不做 STL 分解與異常值統計檢驗）；使用者要處理才以 auto.arima 給季節差分 D 的建議並附 ACF/PACF 圖；一般差分 d 先看 ACF/PACF 再以 ADF＋KPSS 的四種情況判斷；ACF/PACF 識別結構。遇到需要選擇的步驟（檢定、差分階數、選模準則）應簡述選項並由使用者決定；fpp3 工具（unitroot_kpss、unitroot_ndiffs、auto.arima）只作為可選項提及，不預設使用。每步都附統計解讀與領域直覺。",
+      "files": []
+    },
+    {
+      "id": 2,
+      "name": "offer-fpp3-options-hourly-traffic",
+      "prompt": "我有每小時的伺服器流量資料，之後會持續有新資料進來，我想建一個能自動重跑、可重現的預測流程。先幫我探索一下這筆時間序列資料。",
+      "expected_output": "不詢問取向。使用者提到要自動重跑、可重現的流程，應在相關步驟**介紹 fpp3 的自動化工具作為可選項**（tsibble 的 index+key、fill_gaps() 顯性化隱含缺失、unitroot_kpss 與 unitroot_ndiffs/nsdiffs、ARIMA() 自動定階、時間序列交叉驗證），說明各自的依據與限制，**由使用者決定是否採用**，而不是自動全部套用；預設手動流程仍可選。提醒時間順序切分避免時間洩露。",
+      "files": []
+    },
+    {
+      "id": 3,
+      "name": "tsay-jnj-realdata",
+      "prompt": "這是 Tsay《Analysis of Financial Time Series》配套資料 q-jnj.txt（Johnson & Johnson 1960Q1–1980Q4 季度每股盈餘 EPS，共 84 筆）。資料網址：https://faculty.chicagobooth.edu/-/media/faculty/ruey-s-tsay/teaching/fts3/q-jnj.txt 我要寫成統計諮詢報告，需要嚴謹、能交代統計依據。請幫我做時間序列分析。",
+      "expected_output": "以預設手動流程進行：辨識指數成長與季節→log 轉換；ADF 判定非平穩；先季節差分(lag=4)再一階差分 (d=1,D=1)；ACF/PACF/EACF 識別 SARIMA；每步附統計與商業直覺解讀。用 R。這是有已知正解的實資料（見使用者作業），適合驗證 skill。",
+      "files": []
+    },
+    {
+      "id": 4,
+      "name": "ask-before-merging-multi-store-long-table",
+      "prompt": "我有一份門市月銷量資料，路徑是 evals/files/sales_long.csv（欄位 date、store、sales；三家門市各 36 個月），幫我分析一下這份時間序列。",
+      "expected_output": "不詢問取向。看過資料後應辨識出這是同一指標（月銷量）、三家門市混成的長表，**先停下來問使用者**：只分析其中一家（請指定）、三家分別各做一份、或先合併成全部門市總銷量；並說明銷量可加總、但合併會失去門市間差異。**未經使用者同意不得自行合併、不得自行挑一家，也不得直接開始分析。** 可順帶確認單位與報告語言。",
+      "files": ["evals/files/sales_long.csv"]
+    },
+    {
+      "id": 5,
+      "name": "ask-which-variable-when-multiple-numeric-columns",
+      "prompt": "我有一份每月資料，路徑是 evals/files/monthly_multi.csv（欄位 date、temperature、humidity、rainfall、electricity_kwh），幫我分析一下。",
+      "expected_output": "不詢問取向。資料有 4 個數值欄位，應列出所有欄位並告知目前的判斷（例如猜 electricity_kwh 是想解釋的對象，但註明只是猜測），**先停下來請使用者選**：(1) 只分析一個變數、(2) 分別分析好幾個；並說明本 skill 不處理外生變數（用其他欄位解釋某個變數），若使用者想這樣做，告知後請使用者改選 (1) 或 (2)。使用者答不上來時用白話說明各選項。不得自行挑選變數，也不得直接開始分析；非價格資料不提對數報酬。",
+      "files": ["evals/files/monthly_multi.csv"]
+    },
+    {
+      "id": 6,
+      "name": "do-not-reask-when-target-variable-is-named",
+      "prompt": "我有一份每月資料，路徑是 evals/files/monthly_multi.csv，我想分析其中每月用電量（electricity_kwh）這一欄的時間序列。",
+      "expected_output": "使用者已明確指定要分析的變數，視為只分析 electricity_kwh：**不應再列出選項請使用者選**。只簡短告知「這次只分析 electricity_kwh，其他欄位不納入；本 skill 不處理外生變數」，然後繼續流程（依 skill 進入資料健康檢查）。這是對照案例，用來確認 skill 不會對已經回答過的問題重複詢問。",
+      "files": ["evals/files/monthly_multi.csv"]
+    },
+    {
+      "id": 7,
+      "name": "no-opening-orientation-question",
+      "prompt": "我有一份每月資料，路徑是 evals/files/monthly_multi.csv，我想分析其中每月用電量（electricity_kwh）這一欄的時間序列。",
+      "expected_output": "**不應詢問「模型的可解釋性 vs 預測準確度與 pipeline 穩健」這類分析取向**，也不應依此分流成兩條路線。回覆應直接進入資料健康檢查並說明流程是逐階段確認、需要選擇的步驟由使用者決定。對照案例，用來確認開場取向問題已移除。",
+      "files": ["evals/files/monthly_multi.csv"]
+    },
+    {
+      "id": 8,
+      "name": "decision-point-offers-manual-default-and-fpp3-option",
+      "prompt": "（情境：已完成資料健康檢查與圖形探索，序列有明顯趨勢與季節，月資料。）接下來要判斷要不要差分、差分幾次，你要怎麼做？",
+      "expected_output": "遇到「差分階數」的選擇，應**簡述選項並由使用者決定**：預設做法是先看序列圖與 ACF/PACF，依圖選 c 或 ct 設定，再**同時做 ADF 與 KPSS** 並依四種情況判讀（情況一 d=0；情況二差分後重驗；情況三、四並陳由使用者決定）；**本 skill 預設不處理季節效應，應告知使用者並詢問是否處理**，使用者要處理時才用 auto.arima 給 D 的建議並附 ACF/PACF 圖，此時 d 改對季節差分後的序列判斷；可選做法是 fpp3 的 unitroot_ndiffs；並說明 KPSS 與 ADF 的 H₀ 方向相反。**不得直接用 ndiffs() 預設值（只看 KPSS）自動決定 d**，也不應預設採用 fpp3 自動化，也不應介紹或使用 STL 分解。",
+      "files": []
+    },
+    {
+      "id": 9,
+      "name": "fit-compare-then-forecast",
+      "prompt": "（情境：AirPassengers 取 log 後，已確認 d = 1、D = 1，ACF／PACF 已畫好。）接下來要怎麼建模並做預測？",
+      "expected_output": "應走 SKILL.md 的建模與預測階段：依 ACF／PACF 列出 2–3 個候選 SARIMA 並與使用者確認（auto.arima 只作對照、不取代人工定階）；**先問選模準則**（以預測為主→AIC／AICc 或交叉驗證；想要較精簡結構→可考慮 BIC，並註明 BIC 不是「解釋專用」）；用 Arima() 配適（取過對數用 lambda = 0）；比較時只比較差分階數相同的模型；配適後必做殘差兩層診斷（Ljung–Box 與 ARCH）並把兩層結論都寫出；通過後**與使用者確認預測期數 h**，用 forecast() 給點預測與 95% 預測區間，說明已反轉換回原尺度、預測越遠區間越寬、區間在模型成立的前提下才成立。不得跳過選模準則的詢問，不得把預測區間說成保證。",
+      "files": []
+    },
+    {
+      "id": 10,
+      "name": "adf-kpss-both-reject-case-four",
+      "prompt": "（情境：某月資料取 log 後有明顯向上趨勢。選 ct 設定做檢定：ADF p = 0.01，KPSS（null = Trend）p = 0.01。）這樣算平穩嗎？下一步怎麼做？",
+      "expected_output": "應判為**情況四（ADF 拒絕 H₀、KPSS 也拒絕 H₀）**，兩個檢定結論衝突，**不能只看 ADF 就說平穩**，也不自動決定 d。應說明：可能是趨勢平穩，或具有分數整合特性；請使用者對照序列圖確認有無明顯趨勢；檢查檢定設定是否與圖形一致（c 或 ct，ADF 與 KPSS 要用對應設定：ct 對 Trend、c 對 Level），必要時改設定重做，也可嘗試去趨勢；並陳兩個結果，由使用者決定怎麼處理。同時應說明兩個檢定的 H₀ 方向相反、p 值解讀相反。",
+      "files": []
+    },
+    {
+      "id": 11,
+      "name": "ct-case-one-is-trend-stationary",
+      "prompt": "（情境：某月資料有明顯向上趨勢。選 ct 設定做檢定：ADF p = 0.01，KPSS（null = Trend）p > 0.10。）這樣算平穩了嗎？可以直接用 ARMA 建模嗎？",
+      "expected_output": "應判為**情況一**，但要指出：用的是 **ct 設定**，所以結論是「**圍繞趨勢平穩（趨勢平穩）**」，不是單純平穩，**不能直接以 d = 0 配 ARMA**，要先處理趨勢（例如納入時間趨勢項或先去趨勢；若改用差分要留意過度差分），並由使用者決定怎麼處理。同時應提醒檢定設定要與圖形一致、兩個檢定的 H₀ 方向相反。",
+      "files": []
+    }
+  ]
+}
