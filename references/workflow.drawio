@@ -38,7 +38,7 @@
         
         
         
-        <mxCell id="n10" value="候選模型：ARIMA／SARIMA&#xA;依 ACF／PACF 人工定階（可選 auto.arima）&#xA;與使用者確認要配哪些（不含 ARMA(0,0)）" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;" vertex="1" parent="1"><mxGeometry x="230" y="1704" width="340" height="70" as="geometry" /></mxCell>
+        <mxCell id="n10" value="候選模型：ARIMA／SARIMA（不含 ARMA(0,0)）&#xA;先給使用者看 ACF／PACF／EACF&#xA;依 ar() 與圖表給建議階數，由使用者選 2–3 個" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;" vertex="1" parent="1"><mxGeometry x="230" y="1704" width="340" height="70" as="geometry" /></mxCell>
         <mxCell id="n11" value="7　殘差診斷第一層（一階動差）&#xA;Ljung–Box，type = &quot;Ljung-Box&quot;，m = 10（季節資料涵蓋一個週期）&#xA;H₀：殘差為白噪音" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="1"><mxGeometry x="250" y="1904" width="300" height="70" as="geometry" /></mxCell>
         <mxCell id="d7" value="殘差平方有 ARCH 效應？&#xA;（第二層，二階動差）" style="rhombus;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;" vertex="1" parent="1"><mxGeometry x="270" y="2124" width="260" height="90" as="geometry" /></mxCell>
         <mxCell id="nG" value="GARCH 1　定階&#xA;檢視殘差平方的 PACF&#xA;從 GARCH(1,1) 起手" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="1"><mxGeometry x="600" y="2119" width="340" height="70" as="geometry" /></mxCell>

@@ -50,7 +50,7 @@ forecast::auto.arima(y, d = 1, D = 1, ic = "bic",
 **報酬率／殘差本身（一階動差）可能已無自相關，但其「平方」（二階動差）通常仍有強烈自相關**（波動度聚集）。
 `checkresiduals()` 只檢一階、不會自動檢殘差平方，所以要額外做：
 
-1. **視覺化**：畫**殘差平方**的 `ACF` 與 **`PACF`**——`acf(residuals(fit)^2)`、`pacf(residuals(fit)^2)`。
+1. **視覺化**：畫**殘差平方**的 `ACF` 與 **`PACF`**——`acf_pacf(residuals(fit)^2)`（base R 風格、到 lag 20，見範本 setup）。
    有 ARCH 效應時，平方後自相關訊號會全部浮現；**殘差平方的 PACF 截斷位置可初判 ARCH 階數 m**。
 2. **正式檢定（Tsay 給兩種，可並用）**：
    - **Ljung-Box Q(m) 檢殘差平方**：`Box.test(residuals(fit)^2, lag = 12, type = "Ljung-Box")`。

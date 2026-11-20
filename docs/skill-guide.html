@@ -6032,7 +6032,7 @@ r_t - \mu = a_t,\qquad a_t = \sigma_t\,\epsilon_t,\qquad \sigma_t^2 = \omega + \
 </div>
 <section id="識別階數" class="level2" data-number="5.1">
 <h2 data-number="5.1" class="anchored" data-anchor-id="識別階數"><span class="header-section-number">5.1</span> 識別階數</h2>
-<p>平穩後，用 <strong>ggtsdisplay</strong> 一次畫序列圖、ACF、PACF，再列出 <strong>EACF</strong> 表輔助定階。</p>
+<p>平穩後，把 <strong>ACF 與 PACF</strong> 左右並排畫出（base R 風格：有外框、無格線、不畫 lag 0、到 lag 20、橫軸標 Lag），再列出 <strong>EACF</strong> 表輔助定階。</p>
 <table class="caption-top table">
 <thead>
 <tr class="header">
@@ -6061,7 +6061,7 @@ r_t - \mu = a_t,\qquad a_t = \sigma_t\,\epsilon_t,\qquad \sigma_t^2 = \omega + \
 <section id="配適與比較" class="level2" data-number="5.2">
 <h2 data-number="5.2" class="anchored" data-anchor-id="配適與比較"><span class="header-section-number">5.2</span> 配適與比較</h2>
 <ol type="1">
-<li>只列 <strong>2–3 個候選模型</strong>（不做 (p,q) 網格搜尋），與使用者確認；<strong>候選模型一律不含 ARMA(0,0)（常數均值）</strong>，即使 ACF／PACF／EACF 看不出結構或 <code>auto.arima()</code> 選出 (0,0) 也不列入，改從 AR(1)、MA(1)、ARMA(1,1) 與 EACF 的候選中挑 2–3 個；可用 <code>auto.arima()</code>（以 BIC）當對照，但不取代人工定階。</li>
+<li>先把 ACF／PACF 圖與 EACF 表給使用者看，再依 <code>ar()</code> 的 AIC 選階（ΔAIC &lt; 2 的階數也列）、ACF／PACF 截斷與 EACF 頂點給建議階數，由使用者選 <strong>2–3 個候選模型</strong>（報告不列網格搜尋或降階比較表），與使用者確認；<strong>候選模型一律不含 ARMA(0,0)（常數均值）</strong>，即使 ACF／PACF／EACF 看不出結構或 <code>auto.arima()</code> 選出 (0,0) 也不列入，改從 AR(1)、MA(1)、ARMA(1,1) 與 EACF 的候選中挑 2–3 個；可用 <code>auto.arima()</code>（以 BIC）當對照，但不取代人工定階。</li>
 <li>用 <code>forecast::Arima()</code> 配適；取過對數時用 <code>lambda = 0</code>，預測才會自動反轉換回原尺度。</li>
 <li><strong>先問使用者選模準則</strong>，再用 AIC、BIC、對數概似比較：
 <ul>
@@ -6340,8 +6340,8 @@ r_t - \mu = a_t,\qquad a_t = \sigma_t\,\epsilon_t,\qquad \sigma_t^2 = \omega + \
 <tr class="even">
 <td>預測設定（要做預測時）</td>
 <td>資料起訖與筆數</td>
-<td>截止日、訓練窗、預測期數、預測方式（寫入方法章）</td>
-<td>使用者決定</td>
+<td>截止日、訓練窗（預設全部歷史；下限：ARIMA 50、建議 100，ARCH(1) 250，GARCH(1,1) 500）、預測期數、預測方式（寫入方法章）</td>
+<td>使用者決定；低於下限時先警告</td>
 </tr>
 <tr class="odd">
 <td>2 缺失值</td>

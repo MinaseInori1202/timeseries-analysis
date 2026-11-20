@@ -57,6 +57,19 @@ set_flextable_defaults(font.family = "Times New Roman", font.size = 11)
 # 表格欄寬：依各欄最長內容（中文字算 2 個寬度單位）設定，有空間就不換行；過長的欄位上限為 max_in 吋。
 # 用法：flextable(df) |> theme_booktabs() |> ft_fit(df)
 # （autofit() 在瀏覽器以中文字型顯示時會低估寬度、讓「目標變數」這類短標籤被截成兩行，故改用此函式。）
+date_axis <- function(dates) {                         # 日期橫軸：數字格式、刻度約 8–15 個（搭配 plot(..., xaxt = "n")）
+  span <- as.numeric(diff(range(dates)))
+  by  <- if (span <= 120) "week" else if (span <= 400) "month" else if (span <= 3 * 365) "3 months" else if (span <= 20 * 365) "year" else "5 years"
+  fmt <- if (span <= 120) "%m/%d" else if (span <= 3 * 365) "%Y-%m" else "%Y"
+  axis.Date(1, at = seq(min(dates), max(dates), by = by), format = fmt, las = 2, cex.axis = 0.8)
+}
+
+acf_pacf <- function(x, lag.max = 20) {              # ACF 與 PACF 並排（base R：有外框、無格線、不畫 lag 0）
+  op <- par(mfrow = c(1, 2), mar = c(4.2, 4.2, 1, 1)); on.exit(par(op))
+  forecast::Acf(x,  lag.max = lag.max, main = "", xlab = "Lag", ylab = "ACF")
+  forecast::Pacf(x, lag.max = lag.max, main = "", xlab = "Lag", ylab = "PACF")
+}
+
 ft_fit <- function(ft, df, max_in = 3.6) {
   w <- vapply(seq_along(df), function(j) {
     cells <- c(names(df)[j], trimws(format(df[[j]], digits = 6)))
@@ -131,7 +144,7 @@ ft_fit <- function(ft, df, max_in = 3.6) {
 
 ```{r eda-acf}
 # 落後圖、ACF（在轉換後的尺度上；不畫箱形圖）
-# 傳統：acf()/TSA::eacf()；現代：gg_lag()/ACF()
+# ACF／PACF：acf_pacf(x)（base R，有外框、無格線、不畫 lag 0、lag.max = 20、橫軸 Lag）；EACF：TSA::eacf()
 # 敘述統計表：一般序列 mean/sd/min/max（偏態/峰態留到平穩化後）
 # 股價/報酬：價格走勢圖（第一張圖）+ 報酬時間圖 + 六項摘要表 + ACF(報酬)/ACF(報酬^2)（缺一不可）
 ```
@@ -154,7 +167,7 @@ ft_fit <- function(ft, df, max_in = 3.6) {
 # 一般差分 d：先畫序列的 ACF／PACF；再依 ADF＋KPSS 的四種情況判斷（情況一 d=0；情況二差分後重驗；三、四並陳由使用者決定）。
 #   若使用者選擇處理季節，d 對「季節差分後」的序列判斷；不要用 ndiffs() 預設值（只看 KPSS）；
 #   寫明檢定設定（c 或 ct、落後期數），p 值邊際（約 0.05–0.10）時註明；避免過度差分。
-# 確認平穩後緊接著繪製 ACF 與 PACF 圖以識別 ARMA/SARIMA 階數（可再用 TSA::eacf()）。
+# 確認平穩後緊接著用 acf_pacf(x) 繪製 ACF 與 PACF 圖以識別 ARMA/SARIMA 階數（再用 TSA::eacf()）。
 ```
 
 **解讀：**
@@ -163,7 +176,7 @@ ft_fit <- function(ft, df, max_in = 3.6) {
 # 模型配適與比較
 
 ```{r model-fit}
-# 依 ACF／PACF／EACF 只列 2–3 個候選模型（不做 (p,q) 網格搜尋），forecast::Arima(y, order = c(p,d,q), seasonal = c(P,D,Q)) 配適；取過對數時用 lambda = 0。
+# 候選模型為使用者在對話中選定的 2–3 個（先看過 ACF／PACF／EACF 與 ar() 建議階數）；報告不列選單、網格搜尋或降階比較表。forecast::Arima(y, order = c(p,d,q), seasonal = c(P,D,Q)) 配適；取過對數時用 lambda = 0。
 # 表：各候選模型的 AIC、BIC、對數概似（flextable 三線表）；只比較同一份資料、差分階數相同的模型。
 # 選模準則由使用者選定（預設不替使用者選）。
 ```
@@ -175,7 +188,7 @@ ft_fit <- function(ft, df, max_in = 3.6) {
 
 ```{r residuals}
 # 第一層：Box.test(residuals(fit), lag = m, type = "Ljung-Box", fitdf = 參數個數)；寫出 H₀／H₁、Q、自由度、p 值。
-# 殘差圖：殘差時間圖與殘差 ACF 兩張並排（ACF／PACF 類的圖一律 lag.max = 20）。
+# 殘差圖：殘差時間圖與殘差 ACF 兩張並排（base R：par(mfrow = c(1, 2))；plot(residuals(fit), ylab = "Residual")；forecast::Acf(residuals(fit), lag.max = 20, main = "", xlab = "Lag")）。
 # 第二層：殘差平方的 ACF 與 FinTS::ArchTest()；有 ARCH 效應則接 GARCH，沒有就明寫「波動度可視為固定，不需要 GARCH」。
 ```
 
@@ -201,6 +214,7 @@ ft_fit <- function(ft, df, max_in = 3.6) {
 
 <!--
   - 資料是否平穩、採用的模型與診斷結果、預測結果。
+  - 採用模型各係數的實質意義（符號、大小、是否顯著代表什麼動態，例如 AR 係數為負表示反向修正）。
   - 交付乾淨資料與前處理紀錄。
 -->
 

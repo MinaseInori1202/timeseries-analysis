@@ -21,7 +21,7 @@
 | 波動度建模 | `rugarch`（GARCH/EGARCH，金融常用）、`fGarch::garchFit()`（ARCH/GARCH 家族） |
 
 本流程多用 R base graphics（`plot()`、`acf()`、`pacf()`），與統計諮詢報告的慣例一致；
-若偏好 ggplot 風格，`forecast::ggAcf()` / `ggPacf()` 可替代。
+ACF／PACF 一律用 base R 風格（`forecast::Acf()`／`Pacf()`：有外框、無格線、不畫 lag 0、`lag.max = 20`、橫軸標 `Lag`），並排時用下方的 `acf_pacf()`。
 
 ```r
 library(tseries)
@@ -103,16 +103,19 @@ rbind(sd = s, mean = mu)                                # 標準差隨平均上�
 
 ```r
 # 最方便：一次畫出「序列圖 + ACF + PACF」，定階時很好用
-forecast::ggtsdisplay(y, lag.max = 20, main = "")
+acf_pacf <- function(x, lag.max = 20) {              # ACF 與 PACF 並排（base R：有外框、無格線、不畫 lag 0）
+  op <- par(mfrow = c(1, 2), mar = c(4.2, 4.2, 1, 1)); on.exit(par(op))
+  forecast::Acf(x,  lag.max = lag.max, main = "", xlab = "Lag", ylab = "ACF")
+  forecast::Pacf(x, lag.max = lag.max, main = "", xlab = "Lag", ylab = "PACF")
+}
+acf_pacf(y)
 
 # 或分開畫：
 par(mfrow = c(1, 2))
-acf(as.numeric(y),  main = "自相關函數 ACF")
-pacf(as.numeric(y), main = "偏自相關函數 PACF")
 par(mfrow = c(1, 1))
 
 TSA::eacf(as.numeric(y))          # 擴展 ACF，找 ARMA(p,q) 候選頂點
-ar(y, method = "mle")             # 以 AIC 自動選 AR 階數（可解釋性參考）
+a <- ar(y, method = "mle")        # 以 AIC 選 AR 階數：a$order；a$aic 為各階數與最小 AIC 的差（< 2 的也列為選項）
 ```
 
 **判讀規則（Box–Jenkins）**：
@@ -134,7 +137,7 @@ ar(y, method = "mle")             # 以 AIC 自動選 AR 階數（可解釋性�
 **第一步：先畫圖，選 c 或 ct 設定。** 有明顯趨勢 → ct（含常數與趨勢）；沒有明顯趨勢、圍繞某個固定水準 → c（只含常數）。ADF 與 KPSS 用對應設定（c 對 `Level`、ct 對 `Trend`）：
 
 ```r
-ggtsdisplay(y, lag.max = 20)                                   # 先看圖：序列圖、ACF、PACF
+plot(y); acf_pacf(y)                                           # 先看圖：序列圖、ACF、PACF
 
 # 有明顯趨勢（ct）
 fUnitRoots::adfTest(y, lags = 1, type = "ct")    # 落後期數 lags 依 PACF 判斷（Tsay 講義例：由一階差分序列的樣本 PACF 選 p）
@@ -162,10 +165,10 @@ tseries::kpss.test(y, null = "Trend")
 不平穩就差分。**一般差分階數 d 的判斷：先看圖，再用 ADF＋KPSS 的四種情況判斷**。**若使用者選擇處理季節效應**，d 要對「季節差分後」的序列判斷（原序列的檢定受季節與趨勢干擾；季節的處理見下一小節）；**預設（不處理季節）**則對原序列判斷，並在報告註明季節性可能干擾檢定結果：
 
 ```r
-ggtsdisplay(y, lag.max = 20)                                   # 先看圖：ACF 緩慢遞減 → 提示仍不平穩
+plot(y); acf_pacf(y)                                           # 先看圖：ACF 緩慢遞減 → 提示仍不平穩
 # 依圖選 c／ct，兩個檢定都做（見上）→ 依四種情況判讀
 y_d <- diff(y, differences = 1)                  # 情況二：再做一般差分
-ggtsdisplay(y_d, lag.max = 20)                                 # 差分後重新看圖、重新選 c／ct（差分後常見為圍繞固定水準 → c），兩個檢定再做一次
+plot(y_d); acf_pacf(y_d)                                       # 差分後重新看圖、重新選 c／ct（差分後常見為圍繞固定水準 → c），兩個檢定再做一次
 # 若使用者選擇處理季節：先 y_s <- diff(y, lag = 12)（季資料 lag = 4），把上面的 y 換成 y_s
 ```
 
@@ -187,8 +190,8 @@ ggtsdisplay(y_d, lag.max = 20)                                 # 差分後重新
 library(forecast)
 fit <- auto.arima(y)                       # 讓套件自動選階
 arimaorder(fit)                            # c(p, d, q, P, D, Q, m)：讀其中的 D 當建議
-ggtsdisplay(y, lag.max = 20)                             # 附圖一：原序列的序列圖、ACF、PACF
-ggtsdisplay(diff(y, lag = 12), lag.max = 20)             # 附圖二：季節差分後（月資料 lag = 12；季資料 lag = 4）
+plot(y); acf_pacf(y)                                     # 附圖一：原序列的序列圖、ACF、PACF
+acf_pacf(diff(y, lag = 12))                              # 附圖二：季節差分後（月資料 lag = 12；季資料 lag = 4）
 ```
 
 - **這只是套件自動選階的建議**：`auto.arima()` 預設用套件內建的季節強度判準（不是單根檢定）。**實測 log(AirPassengers)**：建議 D = 1（`arimaorder` 為 0,1,1,0,1,1,12）。
