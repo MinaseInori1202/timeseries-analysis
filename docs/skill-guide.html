@@ -2665,25 +2665,76 @@ border-bottom: none !important;
 </section>
 <section id="armaarima-與-sarima" class="level2" data-number="3.4">
 <h2 data-number="3.4" class="anchored" data-anchor-id="armaarima-與-sarima"><span class="header-section-number">3.4</span> ARMA、ARIMA 與 SARIMA</h2>
+<p>以 <span class="math inline">\(y_t\)</span> 表示第 t 期的觀測值（例如報酬率），<span class="math inline">\(a_t\)</span> 表示第 t 期的隨機衝擊（白噪音：平均 0、變異數固定、各期互不相關）。</p>
 <ul>
-<li><strong>AR(p)</strong>：用過去 p 期的<strong>自身</strong>資訊。<strong>MA(q)</strong>：用過去 q 期的<strong>誤差</strong>資訊。<strong>ARMA(p,q)</strong> 兩者兼用。</li>
-<li><strong>ARIMA(p,d,q)</strong>：先差分 d 次再配 ARMA。<strong>SARIMA</strong> 寫成 (p,d,q)(P,D,Q)[m]：前括號是非季節部分，後括號是季節部分，[m] 是季節週期。d 與 D 是一般差分與季節差分的次數。</li>
+<li><strong>AR(p)</strong>：用過去 p 期的<strong>自身</strong>資訊。</li>
+</ul>
+<p><span class="math display">\[
+y_t = \phi_0 + \phi_1 y_{t-1} + \cdots + \phi_p y_{t-p} + a_t
+\]</span></p>
+<ul>
+<li><strong>MA(q)</strong>：用過去 q 期的<strong>衝擊</strong>資訊。</li>
+</ul>
+<p><span class="math display">\[
+y_t = \mu + a_t + \theta_1 a_{t-1} + \cdots + \theta_q a_{t-q}
+\]</span></p>
+<ul>
+<li><strong>ARMA(p,q)</strong>：兩者兼用。</li>
+</ul>
+<p><span class="math display">\[
+y_t = \phi_0 + \sum_{i=1}^{p} \phi_i y_{t-i} + a_t + \sum_{j=1}^{q} \theta_j a_{t-j}
+\]</span></p>
+<ul>
+<li><strong>ARIMA(p,d,q)</strong>：先差分 d 次再配 ARMA。以 <span class="math inline">\(\nabla y_t = y_t - y_{t-1}\)</span> 表示一次差分，ARIMA(p,1,q) 就是對 <span class="math inline">\(\nabla y_t\)</span> 配 ARMA(p,q)。</li>
+<li><strong>SARIMA</strong> 寫成 (p,d,q)(P,D,Q)[m]：前括號是非季節部分，後括號是季節部分，[m] 是季節週期。d 與 D 是一般差分與季節差分的次數。</li>
 <li>本 skill 預設 <strong>d、D 由前面的平穩性步驟決定、不處理季節（D = 0）</strong>。</li>
 </ul>
+<p>MA 項的正負號依 R 的寫法（<span class="math inline">\(+\theta_j a_{t-j}\)</span>）。Tsay 講義寫成 <span class="math inline">\(-\theta_j a_{t-j}\)</span>，係數的正負號相反，意義相同。</p>
 <p>出處：fpp3 §9。Tsay 講義 lec3（airline 模型 (0,1,1)(0,1,1)）。</p>
 </section>
 <section id="波動度arch-與-garch" class="level2" data-number="3.5">
 <h2 data-number="3.5" class="anchored" data-anchor-id="波動度arch-與-garch"><span class="header-section-number">3.5</span> 波動度：ARCH 與 GARCH</h2>
 <p>前面只關心「平均水準」有沒有被模型抓住。但金融報酬的<strong>起伏大小</strong>常會群聚——一段時間很平靜，另一段時間很劇烈。講義的基本想法：報酬的衝擊<strong>沒有自相關，但彼此不獨立</strong>，依賴是非線性的，所以要另外檢查「起伏的大小」。</p>
+<p><strong>符號</strong>：</p>
+<ul>
+<li><span class="math inline">\(r_t\)</span>：第 t 期的報酬率。</li>
+<li><span class="math inline">\(\mu_t\)</span>：均值方程給出的第 t 期平均（例如上一節的 ARMA，或常數 <span class="math inline">\(\mu\)</span>）。</li>
+<li><span class="math inline">\(a_t = r_t - \mu_t\)</span>：均值方程的殘差，也就是第 t 期的衝擊。</li>
+<li><span class="math inline">\(\sigma_t^2\)</span>：條件變異數，在已知第 t−1 期以前所有資訊下，<span class="math inline">\(a_t\)</span> 的變異數，代表這一期的波動度。</li>
+<li><span class="math inline">\(\epsilon_t\)</span>：標準化的隨機項，各期獨立、平均 0、變異數 1（常態或標準化的 Student-t）。</li>
+</ul>
+<p>衝擊寫成 <span class="math inline">\(a_t = \sigma_t\,\epsilon_t\)</span>：<span class="math inline">\(\epsilon_t\)</span> 決定方向與相對大小，<span class="math inline">\(\sigma_t\)</span> 決定這一期的波動有多大。</p>
 <ul>
 <li><strong>ARCH(q)</strong>：現在的波動度依賴過去 q 期的衝擊大小。</li>
-<li><strong>GARCH(1,1)</strong>：現在的波動度依賴過去的衝擊與<strong>過去的波動度</strong>，能以較少的參數描述波動的持續性。模型寫成</li>
 </ul>
 <p><span class="math display">\[
-r_t - \mu = a_t,\qquad a_t = \sigma_t\,\epsilon_t,\qquad \sigma_t^2 = \omega + \alpha_1\, a_{t-1}^2 + \beta_1\, \sigma_{t-1}^2
+\sigma_t^2 = \alpha_0 + \alpha_1\, a_{t-1}^2 + \cdots + \alpha_q\, a_{t-q}^2,\qquad \alpha_0 &gt; 0,\ \alpha_i \ge 0
 \]</span></p>
-<p>其中 <span class="math inline">\(a_t\)</span> 是均值方程的殘差，<span class="math inline">\(\sigma_t^2\)</span> 是條件變異數，<span class="math inline">\(\epsilon_t\)</span> 是標準化的隨機項（常態或 Student-t）。<span class="math inline">\(\alpha_1 + \beta_1 &lt; 1\)</span> 才有固定的長期變異數。越接近 1，波動越持續。</p>
-<p>出處：Tsay 講義 lec4。</p>
+<p>過去的衝擊 <span class="math inline">\(a_{t-i}\)</span> 越大，這一期的條件變異數 <span class="math inline">\(\sigma_t^2\)</span> 就越大，所以大波動之後容易接著大波動。</p>
+<ul>
+<li><strong>GARCH(1,1)</strong>：現在的波動度依賴上一期的衝擊與<strong>上一期的波動度</strong>，能以較少的參數描述波動的持續性。</li>
+</ul>
+<p><span class="math display">\[
+\sigma_t^2 = \omega + \alpha_1\, a_{t-1}^2 + \beta_1\, \sigma_{t-1}^2,\qquad \omega &gt; 0,\ \alpha_1 \ge 0,\ \beta_1 \ge 0
+\]</span></p>
+<p><span class="math inline">\(\alpha_1 + \beta_1 &lt; 1\)</span> 才有固定的長期變異數。越接近 1，波動越持續。</p>
+<p><strong>怎麼檢定有沒有 ARCH 效應</strong>（對均值方程的殘差 <span class="math inline">\(a_t\)</span>，T 為樣本數）：</p>
+<ol type="1">
+<li><strong>殘差平方的 Ljung–Box 檢定</strong>：H₀ 為 <span class="math inline">\(a_t^2\)</span> 在前 m 期沒有自相關（沒有 ARCH 效應）。</li>
+</ol>
+<p><span class="math display">\[
+Q(m) = T(T+2)\sum_{k=1}^{m} \frac{\hat\rho_k^2}{T-k} \;\sim\; \chi^2_m
+\]</span></p>
+<p>其中 <span class="math inline">\(\hat\rho_k\)</span> 是 <span class="math inline">\(a_t^2\)</span> 的第 k 期樣本自相關。本 skill 取 m = 10。</p>
+<ol start="2" type="1">
+<li><strong>ARCH LM 檢定</strong>（Engle, 1982，作為補充）：做輔助迴歸</li>
+</ol>
+<p><span class="math display">\[
+a_t^2 = \alpha_0 + \alpha_1\, a_{t-1}^2 + \cdots + \alpha_m\, a_{t-m}^2 + e_t
+\]</span></p>
+<p>H₀ 為 <span class="math inline">\(\alpha_1 = \cdots = \alpha_m = 0\)</span>（沒有 ARCH 效應）。檢定統計量 <span class="math inline">\(LM = T R^2 \sim \chi^2_m\)</span>，<span class="math inline">\(R^2\)</span> 是輔助迴歸的判定係數（R 的 <code>FinTS::ArchTest()</code> 報告的就是這個統計量）。</p>
+<p>兩個檢定的 p 值小於 0.05，就表示殘差平方有自相關，存在波動聚集（ARCH 效應）。</p>
+<p>出處：Tsay 講義 lec4、Engle (1982)。</p>
 </section>
 <section id="資訊準則與誤差分布" class="level2" data-number="3.6">
 <h2 data-number="3.6" class="anchored" data-anchor-id="資訊準則與誤差分布"><span class="header-section-number">3.6</span> 資訊準則與誤差分布</h2>
