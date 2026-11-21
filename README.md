@@ -85,6 +85,8 @@ Windows 的 `~` 是 `C:\Users\<你的帳號>`。
 timeseries-analysis/
 ├── SKILL.md
 ├── assets/
+├── docs/
+├── examples/
 └── references/
 ```
 
@@ -121,7 +123,6 @@ Skill 會：
 
 | 需要選擇的步驟 | 預設（手動） | 可選（fpp3 或自動化）|
 |---|---|---|
-| 資料結構 | `ts` / `zoo` / `xts` | `tsibble`（index + key）|
 | 缺失值 | 確認缺口存在後，以明確的統計方法補並記錄 | `fill_gaps()` 先顯性化 |
 | 平穩性檢定 | **ADF 與 KPSS 兩者都做**（先看圖選 c 或 ct 設定，結果依四種情況判讀）| `unitroot_kpss()`／`unitroot_ndiffs()` |
 | 季節效應與 D | **預設不處理**（會告知你）；你需要時以 `auto.arima()` 給 D 的建議並附 ACF／PACF 圖 | `nsdiffs()`／`unitroot_nsdiffs()` |
@@ -155,7 +156,12 @@ Skill 會：
 timeseries-analysis/
 ├── SKILL.md                          # 主流程（預設做法與可選項、各階段、報告規範）
 ├── assets/
-│   └── report-template.qmd           # Quarto 報告範本（排版已設定）
+│   └── report-template.qmd           # Quarto 報告範本（排版、輔助函數已設定）
+├── docs/
+│   ├── skill-guide.html              # 時間序列分析指南（觀念、流程圖、操作規格、範例資料說明），用瀏覽器開啟
+│   └── workflow.png                  # 流程圖圖檔
+├── examples/
+│   └── data/                         # 測試用範例資料（NVIDIA 日資料、Intel 月報酬、美國公債利率週資料），說明見指南「範例資料集」
 └── references/
     ├── manual-workflow.md            # 預設的手動流程（含季節效應的 D 建議）
     ├── fpp3-options.md               # fpp3 可選工具
@@ -167,7 +173,7 @@ timeseries-analysis/
     └── textbook-methods.md           # 報告圖表與檢定說明，給非統計背景的讀者（是什麼、何時用、怎麼看）
 ```
 
-採**漸進式載入**：`SKILL.md` 為核心，`references/` 只在需要時才讀取。
+採**漸進式載入**：`SKILL.md` 為核心，`references/` 只在需要時才讀取。`docs/` 與 `examples/` 給使用者閱讀與測試，skill 執行時不會讀取。
 
 ---
 

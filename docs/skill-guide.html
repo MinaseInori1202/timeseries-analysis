@@ -5530,6 +5530,7 @@ border-bottom: none !important;
   <li><a href="#要確認的事" id="toc-要確認的事" class="nav-link" data-scroll-target="#要確認的事"><span class="header-section-number">3.1</span> 要確認的事</a></li>
   <li><a href="#偏態與超額峰態" id="toc-偏態與超額峰態" class="nav-link" data-scroll-target="#偏態與超額峰態"><span class="header-section-number">3.2</span> 偏態與超額峰態</a></li>
   <li><a href="#金融資產價格預設轉成對數報酬" id="toc-金融資產價格預設轉成對數報酬" class="nav-link" data-scroll-target="#金融資產價格預設轉成對數報酬"><span class="header-section-number">3.3</span> 金融資產價格：預設轉成對數報酬</a></li>
+  <li><a href="#確認分析目標與外生變數arimax" id="toc-確認分析目標與外生變數arimax" class="nav-link" data-scroll-target="#確認分析目標與外生變數arimax"><span class="header-section-number">3.4</span> 確認分析目標與外生變數（ARIMAX）</a></li>
   </ul></li>
   <li><a href="#前處理與平穩性" id="toc-前處理與平穩性" class="nav-link" data-scroll-target="#前處理與平穩性"><span class="header-section-number">4</span> 前處理與平穩性</a>
   <ul class="collapse">
@@ -5557,11 +5558,18 @@ border-bottom: none !important;
   <li><a href="#操作規格" id="toc-操作規格" class="nav-link" data-scroll-target="#操作規格"><span class="header-section-number">6.6</span> 操作規格</a></li>
   <li><a href="#原則檢定與診斷只是證據不自動決策" id="toc-原則檢定與診斷只是證據不自動決策" class="nav-link" data-scroll-target="#原則檢定與診斷只是證據不自動決策"><span class="header-section-number">6.7</span> 原則：檢定與診斷只是證據，不自動決策</a></li>
   <li><a href="#常見誤用" id="toc-常見誤用" class="nav-link" data-scroll-target="#常見誤用"><span class="header-section-number">6.8</span> 常見誤用</a></li>
+  <li><a href="#報告書寫與排版規範" id="toc-報告書寫與排版規範" class="nav-link" data-scroll-target="#報告書寫與排版規範"><span class="header-section-number">6.9</span> 報告書寫與排版規範</a></li>
   </ul></li>
-  <li><a href="#限制與參考資料" id="toc-限制與參考資料" class="nav-link" data-scroll-target="#限制與參考資料"><span class="header-section-number">7</span> 限制與參考資料</a>
+  <li><a href="#範例資料集" id="toc-範例資料集" class="nav-link" data-scroll-target="#範例資料集"><span class="header-section-number">7</span> 範例資料集</a>
   <ul class="collapse">
-  <li><a href="#限制" id="toc-限制" class="nav-link" data-scroll-target="#限制"><span class="header-section-number">7.1</span> 限制</a></li>
-  <li><a href="#參考資料" id="toc-參考資料" class="nav-link" data-scroll-target="#參考資料"><span class="header-section-number">7.2</span> 參考資料</a></li>
+  <li><a href="#nvidia-日資料報酬率建模與樣本外預測" id="toc-nvidia-日資料報酬率建模與樣本外預測" class="nav-link" data-scroll-target="#nvidia-日資料報酬率建模與樣本外預測"><span class="header-section-number">7.1</span> NVIDIA 日資料：報酬率建模與樣本外預測</a></li>
+  <li><a href="#intel-月報酬archgarch-波動度模型" id="toc-intel-月報酬archgarch-波動度模型" class="nav-link" data-scroll-target="#intel-月報酬archgarch-波動度模型"><span class="header-section-number">7.2</span> Intel 月報酬：ARCH／GARCH 波動度模型</a></li>
+  <li><a href="#美國公債利率週資料迴歸加時間序列誤差arimaxgarch" id="toc-美國公債利率週資料迴歸加時間序列誤差arimaxgarch" class="nav-link" data-scroll-target="#美國公債利率週資料迴歸加時間序列誤差arimaxgarch"><span class="header-section-number">7.3</span> 美國公債利率週資料：迴歸加時間序列誤差（ARIMAX＋GARCH）</a></li>
+  </ul></li>
+  <li><a href="#限制與參考資料" id="toc-限制與參考資料" class="nav-link" data-scroll-target="#限制與參考資料"><span class="header-section-number">8</span> 限制與參考資料</a>
+  <ul class="collapse">
+  <li><a href="#限制" id="toc-限制" class="nav-link" data-scroll-target="#限制"><span class="header-section-number">8.1</span> 限制</a></li>
+  <li><a href="#參考資料" id="toc-參考資料" class="nav-link" data-scroll-target="#參考資料"><span class="header-section-number">8.2</span> 參考資料</a></li>
   </ul></li>
   </ul>
 </nav>
@@ -5582,7 +5590,7 @@ border-bottom: none !important;
     <div>
     <div class="quarto-title-meta-heading">發佈於</div>
     <div class="quarto-title-meta-contents">
-      <p class="date">2026年11月20日</p>
+      <p class="date">2026年11月21日</p>
     </div>
   </div>
   
@@ -5630,6 +5638,10 @@ border-bottom: none !important;
 <td>報酬的波動是否忽大忽小？風險未來會多高？</td>
 <td>殘差第二層診斷、GARCH、波動度預測</td>
 </tr>
+<tr class="odd">
+<td>能不能用另一個變數解釋目標變數（例如用 1 年期利率解釋 3 年期利率）？</td>
+<td>確認分析目標、迴歸加 ARIMA 誤差或迴歸加 GARCH 誤差（ARIMAX）</td>
+</tr>
 </tbody>
 </table>
 </section>
@@ -5644,6 +5656,7 @@ border-bottom: none !important;
 <section id="運作原則" class="level2" data-number="1.3">
 <h2 data-number="1.3" class="anchored" data-anchor-id="運作原則"><span class="header-section-number">1.3</span> 運作原則</h2>
 <ol type="1">
+<li>分析依序分為 7 個階段：1 資料健康檢查、2 缺失值處理、3 視覺化探索、4 平穩性與差分、5 建模、6 殘差診斷、7 預測。健康檢查後先確認分析目標（含是否考慮外生變數），要做預測時再設定預測條件，之後才處理缺失值。<strong>使用者掌控分析是本 skill 最重要的原則。</strong></li>
 <li>每個階段做完，先給使用者看結果，確認後才往下。</li>
 <li>遇到需要選擇的步驟就停下來，簡述選項、依據與預設做法，由使用者決定；不替使用者選。</li>
 <li>預設是手動、可逐步檢視的做法；fpp3 的自動化工具（<code>tsibble</code>、<code>fable</code>、<code>auto.arima()</code> 等）只在使用者選擇時採用。</li>
@@ -5742,8 +5755,8 @@ r_t - \mu = a_t,\qquad a_t = \sigma_t\,\epsilon_t,\qquad \sigma_t^2 = \omega + \
 </tr>
 <tr class="even">
 <td>分析對象</td>
-<td>有兩個以上數值欄位時，先列出欄位、說明目前的判斷，由使用者選：只分析一個，或分別分析</td>
-<td>使用者已明確指定變數時不重問；想用其他欄位解釋某個變數（外生變數）時，健康檢查後問分析目標，預設用資料中其他欄位</td>
+<td>有兩個以上數值欄位時，先列出欄位、說明目前的判斷，由使用者選：（1）只分析一個；（2）分別分析多個，逐一各做一份；（3）用其他欄位解釋某個變數（外生變數，健康檢查後再問）</td>
+<td>使用者已明確指定變數時不重問</td>
 </tr>
 <tr class="odd">
 <td>多序列</td>
@@ -5768,20 +5781,77 @@ r_t - \mu = a_t,\qquad a_t = \sigma_t\,\epsilon_t,\qquad \sigma_t^2 = \omega + \
 <tr class="odd">
 <td>數值合理性</td>
 <td>符號與範圍、最大單期變動、單位一致</td>
-<td>不做異常值的統計檢驗；偏離值只用圖目視，被看到的點<strong>不等於資料錯誤</strong></td>
+<td>不做異常值的統計檢驗；偏離值只用時間圖目視，被看到的點<strong>不等於資料錯誤</strong></td>
+</tr>
+<tr class="even">
+<td>缺失值</td>
+<td>找出並標記缺失位置（例如 <code>sum(is.na(x))</code>、跳號）</td>
+<td>這一步先不補，第 2 階段由使用者決定處理方式</td>
 </tr>
 </tbody>
 </table>
+<p>時間資料結構（<code>ts</code>、<code>xts</code> 或時間已排序的 data.frame）由 skill 自動建立，不另問使用者；只有使用者選用 fpp3 工具時才轉成 tsibble。</p>
 <p><strong>時間序列不能隨機刪除列</strong>：刪掉中間幾筆會破壞時間間隔與落後關係，讓後面的 ACF、差分全部失真。缺一筆就讓它顯性地缺著。</p>
 </section>
 <section id="偏態與超額峰態" class="level2" data-number="3.2">
 <h2 data-number="3.2" class="anchored" data-anchor-id="偏態與超額峰態"><span class="header-section-number">3.2</span> 偏態與超額峰態</h2>
-<p>偏態看分布偏哪一邊（0 表示左右對稱）；超額峰態看尾巴是否比常態厚（0 表示與常態相當，正值表示極端值較多）。<strong>只在平穩化後的序列</strong>（殘差、差分後、報酬率）上看；有趨勢或季節的原始序列不看，因為水準會隨時間漂移，算出來的數字容易誤導。</p>
+<p>敘述統計表中，平均、標準差、最小、最大任何序列都列出；偏態與超額峰態另外處理。偏態看分布偏哪一邊（0 表示左右對稱）；超額峰態看尾巴是否比常態厚（0 表示與常態相當，正值表示極端值較多）。<strong>只在平穩化後的序列</strong>（殘差、差分後、報酬率）上看；有趨勢或季節的原始序列不看，因為水準會隨時間漂移，算出來的數字容易誤導。</p>
 </section>
 <section id="金融資產價格預設轉成對數報酬" class="level2" data-number="3.3">
 <h2 data-number="3.3" class="anchored" data-anchor-id="金融資產價格預設轉成對數報酬"><span class="header-section-number">3.3</span> 金融資產價格：預設轉成對數報酬</h2>
-<p>股價、指數、匯率、加密貨幣收盤價等，<strong>預設先轉成對數報酬</strong>（今天的對數價格減昨天的對數價格，約等於漲跌的百分比），並告知使用者理由：<strong>通常是報酬率才能拿來做時間序列分析；價格只在特定情境（例如共整合、配對交易的長期關係）才會直接分析</strong>。價格通常不平穩、起伏隨價位放大；報酬率通常近似平穩，才適合進入後面的檢定與建模。轉換後的報酬要完整重跑探索：價格走勢圖（第一張圖）與報酬時間圖、六項摘要（平均、標準差、偏態、超額峰態、最小、最大）、報酬與報酬平方的 ACF，以及 ADF 與 KPSS。</p>
-<p>出處：Tsay 講義 lec3、lec4；本 skill 的做法。</p>
+<p>先依欄位名稱（close、price、adj_close 等）與數值特性判斷資料類型並告知使用者；無法判斷時先問，不自行假設；不是價格資料就不提這題。確認是股價、指數、匯率、加密貨幣收盤價等，<strong>預設先轉成對數報酬</strong>（今天的對數價格減昨天的對數價格，約等於漲跌的百分比），並告知使用者理由：<strong>通常是報酬率才能拿來做時間序列分析；價格只在特定情境（例如共整合、配對交易的長期關係）才會直接分析</strong>。價格通常不平穩、起伏隨價位放大；報酬率通常近似平穩，才適合進入後面的檢定與建模。轉換後的報酬要完整重跑探索：價格走勢圖（第一張圖）與報酬時間圖、六項摘要（平均、標準差、偏態、超額峰態、最小、最大）、報酬與報酬平方的 ACF（並以 ARCH 檢定檢查波動聚集），以及 ADF 與 KPSS。報告有預測時，另加一章「由報酬回算價格」：價格可由起始價精確回算，一步預測的價格＝前一日實際收盤價 × exp(報酬預測)，區間界線同樣換算，價格的點預測是中位預測而非平均預測。</p>
+<p>出處：Tsay 講義 lec3、lec4；本 skill 的做法（<code>references/financial.md</code>）。</p>
+</section>
+<section id="確認分析目標與外生變數arimax" class="level2" data-number="3.4">
+<h2 data-number="3.4" class="anchored" data-anchor-id="確認分析目標與外生變數arimax"><span class="header-section-number">3.4</span> 確認分析目標與外生變數（ARIMAX）</h2>
+<p>健康檢查的結果給使用者看過後，先問<strong>分析目標</strong>（要分析或預測哪個變數、目的為何），再問<strong>要不要考慮外生變數</strong>。</p>
+<ul>
+<li><strong>資料來源</strong>：預設用資料中現有的其他數值欄位；使用者問到星期效應（例如 Monday effect）、假日效應時，才提供由日期產生的虛擬變數。</li>
+<li><strong>一定要問使用者想做哪一種</strong>，三者的模型設定與報告寫法不同：</li>
+</ul>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 25%">
+<col style="width: 25%">
+<col style="width: 25%">
+<col style="width: 25%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>目的</th>
+<th>外生變數的時點</th>
+<th>預測</th>
+<th>限制</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>解釋兩者的關係</td>
+<td>同期（<span class="math inline">\(x_t\)</span> 解釋 <span class="math inline">\(y_t\)</span>）</td>
+<td>代入預測期實際的 x，章名為「條件預測」</td>
+<td>不是事前預測</td>
+</tr>
+<tr class="even">
+<td>事前預測</td>
+<td>落後值（<span class="math inline">\(x_{t-1}\)</span> 解釋 <span class="math inline">\(y_t\)</span>）</td>
+<td>只用預測起點已知的資訊</td>
+<td>解釋力可能大幅下降</td>
+</tr>
+<tr class="odd">
+<td>同期關係＋事前預測</td>
+<td>同期</td>
+<td>先為外生變數配時間序列模型並預測，再代入</td>
+<td>區間要納入 x 的預測不確定性，較複雜</td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li><strong>誤差一律要有 ARMA 階數</strong>（例如迴歸加 MA(1)、AR(1)、ARMA(1,1) 誤差），不可以只用「均值加外生變數」；在迴歸中加入落後項而誤差仍為 ARMA(0,0) 的寫法也不列入候選。</li>
+<li><strong>假性迴歸</strong>：目標與外生變數都不平穩時，水準對水準的迴歸 <span class="math inline">\(R^2\)</span> 再高也可能是假性迴歸；先檢查迴歸殘差是否平穩，不平穩就改用兩者的差分（Tsay 講義第 2 章以 1 年期利率解釋 3 年期利率的週資料為例）。</li>
+<li><strong>預測起點必須已知</strong>：在預測起點 t 只能使用截至 t 已知的資訊；代入預測期實際外生變數值的預測只能稱「條件預測」，且這個名稱<strong>只用在這種 ARIMAX</strong>。</li>
+<li>報告列出迴歸係數與 ARMA 係數的估計表，並解釋迴歸係數的意義（外生變數變動一單位，目標變數平均變動多少）。接 GARCH 時，均值方程放入外生變數（<code>rugarch</code> 的 <code>external.regressors</code>）。</li>
+</ul>
+<p>出處：Tsay 講義 lec3（Regression Models with Time Series Errors）；本 skill 的做法。</p>
 </section>
 </section>
 <section id="前處理與平穩性" class="level1" data-number="4">
@@ -5791,6 +5861,7 @@ r_t - \mu = a_t,\qquad a_t = \sigma_t\,\epsilon_t,\qquad \sigma_t^2 = \omega + \
 </div>
 <section id="缺失值" class="level2" data-number="4.1">
 <h2 data-number="4.1" class="anchored" data-anchor-id="缺失值"><span class="header-section-number">4.1</span> 缺失值</h2>
+<p>處理順序為：健康檢查 →（要預測時）預測設定 → <strong>缺失值處理</strong> → 視覺化。缺失會讓後面的圖、ACF、轉換與檢定失真，所以先處理。若已指定截止日，缺失值的判斷與補值<strong>只使用訓練段</strong>，避免用到未來資料。</p>
 <table class="caption-top table">
 <colgroup>
 <col style="width: 50%">
@@ -5860,7 +5931,7 @@ r_t - \mu = a_t,\qquad a_t = \sigma_t\,\epsilon_t,\qquad \sigma_t^2 = \omega + \
 </section>
 <section id="視覺化探索" class="level2" data-number="4.2">
 <h2 data-number="4.2" class="anchored" data-anchor-id="視覺化探索"><span class="header-section-number">4.2</span> 視覺化探索</h2>
-<p>預設用下面這組圖，從整體看到細節：</p>
+<p><strong>所有資料的第一張圖是原始序列的走勢圖</strong>（未轉換、未差分；價格資料在轉成報酬之前先畫價格走勢圖）。<strong>不畫箱形圖</strong>，異常值只靠時間圖目視。預設用下面這組圖，從整體看到細節：</p>
 <table class="caption-top table">
 <colgroup>
 <col style="width: 50%">
@@ -5889,9 +5960,10 @@ r_t - \mu = a_t,\qquad a_t = \sigma_t\,\epsilon_t,\qquad \sigma_t^2 = \omega + \
 <h2 data-number="4.3" class="anchored" data-anchor-id="變異數穩定對數轉換與-boxcox"><span class="header-section-number">4.3</span> 變異數穩定：對數轉換與 Box–Cox</h2>
 <ul>
 <li><strong>什麼時候用</strong>：序列水準越高、起伏越大時（例如旅客人數越多，季節高低差越大）。λ = 0 就是取對數。</li>
-<li><strong>怎麼判斷</strong>：目的是看變異數（波動幅度）是否隨水準增大。先看原始尺度的圖，再把序列切成連續數段（月、季資料以年為段，否則等長分段），比較各段標準差與平均，轉換前後各算一次；轉換前標準差隨平均上升、轉換後不再上升，才有效。<strong>波動幅度沒有隨水準增大就不該硬轉</strong>。取對數後的變化可解讀為比例（百分比）變化。</li>
+<li><strong>怎麼判斷</strong>：目的是看變異數（波動幅度）是否隨水準增大。先看原始尺度的圖，再把序列切成連續數段（月、季資料以年為段；沒有年週期或不到兩年時，切成等長的連續數段），比較各段標準差與平均，轉換前後各算一次；轉換前標準差隨平均上升、轉換後不再上升，才有效。<strong>波動幅度沒有隨水準增大就不該硬轉</strong>。取對數後的變化可解讀為比例（百分比）變化。</li>
 <li><strong>講義的理由</strong>：處理指數成長（對數後成長變直線）與穩定變異。</li>
 </ul>
+<p>轉換後再看一次自相關與分布。報告順序為<strong>先探索、後轉換</strong>：先在原始尺度呈現走勢圖與量化依據，再提出轉換的理由。</p>
 <p>出處：Tsay 講義 lec3；fpp3 §3.1；量化檢查為本 skill 的做法。</p>
 </section>
 <section id="平穩性檢定adf-與-kpss-兩者都做" class="level2" data-number="4.4">
@@ -6011,7 +6083,7 @@ r_t - \mu = a_t,\qquad a_t = \sigma_t\,\epsilon_t,\qquad \sigma_t^2 = \omega + \
 <p>這四種情況的判讀準則由指導老師提供，原文未附出處；結合 ADF 與 KPSS 的做法源自 Kwiatkowski, Phillips, Schmidt &amp; Shin (1992)。不同資料來源對「兩者結論衝突」的稱呼不一致（例如 statsmodels 文件把「兩者都不拒絕」稱為趨勢平穩），所以情況三、四一律並陳，不自動判定。</p>
 </div>
 </div>
-<p><strong>一般差分階數 d</strong>：先看序列的 ACF 圖（緩慢遞減提示仍不平穩），再依四種情況判斷；p 值落在邊際（約 0.05–0.10）要註明，並以差分後的 ACF 與殘差診斷檢視是否過度差分。<code>ndiffs()</code> 的預設只看 KPSS，不用來決定 d。</p>
+<p><strong>一般差分階數 d</strong>：先看序列的 ACF 圖（緩慢遞減提示仍不平穩），再依四種情況判斷；p 值落在邊際（約 0.05–0.10）要註明，並以差分後的 ACF 與殘差診斷檢視是否過度差分。<code>ndiffs()</code> 的預設只看 KPSS，不用來決定 d。使用者選擇處理季節時，d 對季節差分後的序列判斷；預設不處理季節時對原序列判斷，並在報告註明季節可能干擾檢定結果。</p>
 <p>出處：Tsay 講義 lec3（<code>adfTest</code> 的 <code>type</code>）；fpp3 §9.1；<code>tseries</code>、<code>fUnitRoots</code> 說明文件。</p>
 </section>
 <section id="季節效應預設不處理" class="level2" data-number="4.5">
@@ -6069,7 +6141,10 @@ r_t - \mu = a_t,\qquad a_t = \sigma_t\,\epsilon_t,\qquad \sigma_t^2 = \omega + \
 </ul></li>
 <li><strong>只能比較同一份資料、差分階數相同的模型</strong>；差分階數不同，或 ARIMA 與 ETS 這類不同類型的模型，分數不能直接比（fpp3 §9.6、§9.10）。</li>
 <li>只配一個模型時不需要選模準則，只看殘差診斷。</li>
-<li>一律<strong>按時間順序</strong>切分訓練與測試，避免時間洩露。</li>
+<li>一律<strong>按時間順序</strong>切分訓練段與樣本外，避免時間洩露。</li>
+<li><strong>AIC 最小的模型落在邊界</strong>（標準誤無法計算、特徵根模長約為 1、AR 與 MA 係數近似抵銷）時，如實列出參數估計表與特徵根，問使用者要不要換成階數較低、特徵根在單位圓外的模型；不做概似比檢定，報告不列逐一降階的比較表。換了模型時寫明理由，並註明它的 AIC 不是最小。</li>
+<li>採用的模型一律列出<strong>參數估計表</strong>（估計值、標準誤、z 或 t 值、p 值；無法計算時標「無法計算」），解讀中寫出代入估計值的模型式，並說明各係數的實質意義（例如 AR 係數為負表示反向修正；不顯著的係數只寫「沒有明顯影響」）。</li>
+<li>有外生變數時的做法見第 3 章「確認分析目標與外生變數」。</li>
 </ol>
 </section>
 <section id="殘差診斷兩層都要做" class="level2" data-number="5.3">
@@ -6094,43 +6169,83 @@ r_t - \mu = a_t,\qquad a_t = \sigma_t\,\epsilon_t,\qquad \sigma_t^2 = \omega + \
 <tr class="odd">
 <td><strong>第一層：一階動差</strong></td>
 <td>均值是否抓完（殘差有沒有自相關）</td>
-<td>殘差 ACF 圖；Ljung–Box 檢定</td>
+<td>殘差時間圖與殘差 ACF（並排）；Ljung–Box Q(10)</td>
 <td>p &gt; 0.05 → 通過；p ≤ 0.05 → 調整階數或季節項</td>
 </tr>
 <tr class="even">
 <td><strong>第二層：二階動差</strong></td>
 <td>變異數是否固定（有沒有波動聚集）</td>
-<td>殘差平方的 ACF 配合 Ljung–Box；ARCH LM 檢定作補充</td>
+<td>殘差平方的 ACF 配合 Ljung–Box Q(10)；<code>FinTS::ArchTest()</code>（ARCH LM）作補充</td>
 <td>顯著 → 有 ARCH 效應，接 GARCH；不顯著 → <strong>明寫「波動度可視為固定，不需要 GARCH」</strong></td>
 </tr>
 </tbody>
 </table>
-<p><strong>Ljung–Box 檢定</strong>：H₀ 為殘差在前 m 期<strong>沒有自相關</strong>；一次檢定 m 期，比一根一根柱子看更不容易誤判。一階動差預設 m = 10（有季節時涵蓋一個季節週期以上）；函數要指定 Ljung–Box 型（R 的預設是較不準的 Box–Pierce 型）；自由度要扣掉已估計的 AR、MA 參數個數。</p>
+<p><strong>Ljung–Box 檢定</strong>：H₀ 為殘差在前 m 期<strong>沒有自相關</strong>；一次檢定 m 期，比一根一根柱子看更不容易誤判。一階動差預設 m = 10（有季節時涵蓋一個季節週期以上）；函數要指定 Ljung–Box 型（R 的預設是較不準的 Box–Pierce 型）；自由度要扣掉已估計的 AR、MA 參數個數。報告寫出 H₀、所用的 m、統計量 Q、自由度與 p 值，不能只寫一個 p 值；<strong>只報 Q(10)</strong>，不另報 Q(20)，避免資訊過多；m 必須大於已估計的參數個數。</p>
+<p><strong>殘差圖</strong>：殘差時間圖（縱軸標 Residual）與殘差 ACF 左右並排；不另畫殘差直方圖，分布假設只在 GARCH 的標準化殘差以 QQ 圖檢查。</p>
 <p><strong>ARCH 檢定的順序</strong>：「有沒有」ARCH 效應，用殘差平方的 ACF 配合 Ljung–Box（前幾期 ACF 顯著、Q 檢定拒絕即有波動聚集）；「階數 q」則因為 ACF 會拖尾，改看殘差平方的 <strong>PACF</strong>。</p>
 <p><strong>為什麼兩層都要寫</strong>：第一層通過只代表均值沒有殘留自相關，<strong>完全不保證變異數固定</strong>；漏掉第二層會低估風險與預測區間的不確定性。「檢定後確認不需要 GARCH」本身也是結論，不能因為是「沒有」就略過。</p>
 <p>出處：fpp3 §5.4；Tsay 講義 lec3、lec4。</p>
 </section>
 <section id="garch-建模" class="level2" data-number="5.4">
 <h2 data-number="5.4" class="anchored" data-anchor-id="garch-建模"><span class="header-section-number">5.4</span> GARCH 建模</h2>
-<ol type="1">
+<ol start="0" type="1">
+<li><strong>樣本數檢查</strong>：訓練段不到 500 筆（GARCH(1,1)）或 250 筆（ARCH(1)）時，先告訴使用者低於 Hwang &amp; Valls Pereira (2006) 建議的下限，估計可能偏誤或無法收斂，由使用者決定拉長訓練窗或照做，並在報告寫明限制。</li>
 <li><strong>定階</strong>：看殘差平方的 PACF，寫出顯著的落後期，據此列出 ARCH(q) 候選；另以 GARCH(1,1) 為候選一併比較。</li>
-<li><strong>估計</strong>：條件最大概似，均值與波動度一起估（<code>rugarch</code> 或 <code>fGarch</code>）；誤差分布比較常態與 Student-t（報酬厚尾常用 Student-t）。</li>
+<li><strong>估計</strong>：條件最大概似，均值與波動度一起估（<code>rugarch</code> 或 <code>fGarch</code>）；誤差分布可比較常態、Student-t、skewed-t、GED（報酬厚尾常用 Student-t）。</li>
 <li><strong>模型檢查</strong>：對<strong>標準化殘差</strong>與其平方各報 Ljung–Box Q(10)（前者檢查均值方程是否足夠，後者檢查波動度方程是否足夠），再用標準化殘差的偏態、峰態與 QQ 圖檢查分布假設。</li>
 <li><strong>判斷</strong>：Q 檢定皆 p &gt; 0.05 且分布假設合理 → 進入預測；否則調整階數、改誤差分布或換模型（EGARCH、TGARCH 處理大跌與大漲的不對稱影響），重新配適；仍未解決的限制如實寫進報告。</li>
 </ol>
-<p><strong>講義例子</strong>：S&amp;P 500 月超額報酬，GARCH(1,1) 的兩個係數相加 0.9767；標準化殘差的 Q(10)、Q(20) 的 p 值為 0.34、0.23，其平方為 0.27、0.54，皆不顯著，模型適切。</p>
+<p><strong>講義例子</strong>：S&amp;P 500 月超額報酬，GARCH(1,1) 的兩個係數相加 0.9767；標準化殘差的 Q(10) p 值為 0.34，其平方為 0.27，皆不顯著，模型適切（講義原文另報 Q(20)，本 skill 的報告只報 Q(10)）。</p>
 </section>
 <section id="預測與預測區間" class="level2" data-number="5.5">
 <h2 data-number="5.5" class="anchored" data-anchor-id="預測與預測區間"><span class="header-section-number">5.5</span> 預測與預測區間</h2>
+<p><strong>預測設定（要做預測時，在確認分析目標之後、缺失值處理之前問）</strong>，三項都由使用者決定，使用者的指定照做：</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 33%">
+<col style="width: 33%">
+<col style="width: 33%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>設定</th>
+<th>選項</th>
+<th>說明</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>訓練截止日</td>
+<td>用全部資料預測未來；或指定截止日，之後留作樣本外</td>
+<td>先告知資料起訖與筆數</td>
+</tr>
+<tr class="even">
+<td>訓練窗長度</td>
+<td>預設截止日以前的全部歷史；或最近 W 筆</td>
+<td>下限：非季節 ARIMA 至少 50 筆、建議 100 筆以上（NIST 引 Chatfield, 1996）；季節 ARIMA 至少數個完整週期（Hyndman &amp; Kostenko, 2007）；ARCH(1) 250 筆、GARCH(1,1) 500 筆（Hwang &amp; Valls Pereira, 2006）。低於下限先警告再給選項</td>
+</tr>
+<tr class="odd">
+<td>預測期數 h</td>
+<td>有樣本外時上限＝截止日後實際有資料的期數；預測未來時依頻率給例子</td>
+<td>預測越遠區間越寬；d = 0 的 ARMA 預測逐步收斂到均值</td>
+</tr>
+</tbody>
+</table>
+<p><strong>報告的預測章固定分兩節</strong>：</p>
+<ol type="1">
+<li><strong>多步預測與多步預測區間</strong>：從截止日（或資料最後一期）一次預測 h 期，不放回新資料。預測未來時只有這一節。</li>
+<li><strong>固定參數一步預測</strong>（有樣本外時才有）：參數只在訓練段估計一次、固定不變；樣本外每一期代入新的實際值後預測下一期。</li>
+</ol>
+<p><strong>只切訓練段與樣本外，不另切驗證集</strong>：模型與訓練窗只用訓練段決定，樣本外只在最後用一次，所以不需要驗證集。<strong>若要依樣本外的結果回頭挑模型、階數或訓練窗，就必須另切驗證集</strong>，否則樣本外不再是事前的。不做每期重新估計參數的滾動評估。</p>
 <ul>
-<li>預測期數 h 與使用者確認（例如月資料 12 或 24 期）；預測越遠、區間越寬，因為累積的不確定性越多。</li>
 <li><strong>只給 95% 預測區間</strong>：在模型成立的前提下，大約 95% 的實際結果會落在這個區間內。</li>
-<li><strong>ARIMA 預測</strong>：<code>forecast(fit, h, level = 95)</code>，圖中線是點預測，帶子是區間；取過對數時以 <code>lambda = 0</code> 配適，預測會自動反轉換回原尺度。區間假設殘差無自相關、變異固定且近似常態。</li>
-<li><strong>有接 GARCH 時</strong>：用 <code>rugarch::ugarchforecast()</code>，點預測取 <code>fitted()</code>、波動度預測取 <code>sigma()</code>，區間 ＝ 點預測 ± 分位數 × 條件標準差。常態用 1.96；Student-t 要用<strong>標準化 t 的分位數</strong>（<code>qdist(&quot;std&quot;, ...)</code>；例如自由度約 8 時為 1.997，不是 1.96）。預測的波動度會逐步回到長期水準（無條件標準差）。</li>
+<li><strong>ARIMA 預測</strong>：<code>forecast(fit, h, level = 95)</code>；取過對數時以 <code>lambda = 0</code> 配適，預測會自動反轉換回原尺度。固定參數一步預測用 <code>Arima(全序列, model = fit)</code> 的 <code>fitted()</code>。區間假設殘差無自相關、變異固定且近似常態。</li>
+<li><strong>有接 GARCH 時</strong>：用 <code>rugarch::ugarchforecast()</code>，點預測取 <code>fitted()</code>、波動度預測取 <code>sigma()</code>，區間 ＝ 點預測 ± 分位數 × 條件標準差。常態用 1.96；Student-t 要用<strong>標準化 t 的分位數</strong>（<code>qdist(&quot;std&quot;, p = 0.975, shape = 估計的 shape)</code>，例如 shape ≈ 6 時為 1.998，不是 1.96）。預測的波動度會逐步回到長期水準。</li>
 <li><strong>限制</strong>：均值方程為常數時，這個區間是精確的；均值含 AR 或 MA 項時，多步區間會偏窄（實測 AR(1)、係數約 0.5 時，h ≥ 5 的真實預測標準差約為所用條件標準差的 1.17 倍），報告要註明。</li>
-<li>使用者要求評估預測表現時，按時間順序留出最後一段當測試集，以 <code>accuracy()</code> 比較。</li>
+<li><strong>預測圖的呈現</strong>：點預測是看得見的線，與實際值、95% 區間帶都有圖例；樣本外區段加底色；日資料橫軸逐日標示日期；接 GARCH 時另附條件標準差圖。<strong>不產生逐期預測明細表</strong>；有樣本外實際值時，解讀寫出落在 95% 區間外的期數與日期，不寫雙尾機率。</li>
+<li><strong>條件預測</strong>：只有 ARIMAX 選擇「解釋同期關係」並代入實際外生變數值時，章名才稱「條件預測」（見第 3 章）。</li>
 </ul>
-<p>出處：fpp3 §5.4–5.5；Tsay 講義 lec3、lec4；GARCH 預測的分位數與限制為本 skill 以 R 實測的結果。</p>
+<p>出處：fpp3 §5.4–5.5；Tsay 講義 lec3、lec4；R06（無資料洩漏的樣本外評估）的原則；GARCH 預測的分位數與限制為本 skill 以 R 實測的結果。</p>
 </section>
 </section>
 <section id="決策流程圖與操作規格" class="level1" data-number="6">
@@ -6140,10 +6255,13 @@ r_t - \mu = a_t,\qquad a_t = \sigma_t\,\epsilon_t,\qquad \sigma_t^2 = \omega + \
 </div>
 <section id="圖例" class="level2" data-number="6.1">
 <h2 data-number="6.1" class="anchored" data-anchor-id="圖例"><span class="header-section-number">6.1</span> 圖例</h2>
+<p>流程圖的圖檔為 <code>docs/workflow.png</code>，可編輯的 draw.io 版本為 <code>references/workflow.drawio</code>。</p>
 <ul>
-<li>黃色方塊：需要使用者<strong>確認、回覆或交付</strong>的節點。</li>
-<li>白色方塊：skill 自動執行並記錄的步驟。</li>
-<li>菱形：判斷點。</li>
+<li>黃色：使用者決定或確認的節點（使用者掌控分析是本 skill 最重要的原則）。</li>
+<li>藍色：處理步驟。</li>
+<li>橘色：建模。</li>
+<li>綠色菱形：判斷點。</li>
+<li>紫色：模型定案與預測。</li>
 </ul>
 </section>
 <section id="a.-整體流程" class="level2" data-number="6.2">
@@ -6233,7 +6351,7 @@ r_t - \mu = a_t,\qquad a_t = \sigma_t\,\epsilon_t,\qquad \sigma_t^2 = \omega + \
 <p></p><figure class="figure"><p></p>
 <div>
 <pre class="mermaid mermaid-js">flowchart TD
-  A[&quot;GARCH 1 定階&lt;br/&gt;殘差平方的 PACF；從 GARCH(1,1) 起手&quot;] --&gt; B[&quot;GARCH 2 估計&lt;br/&gt;條件最大概似，均值與波動度一起估&lt;br/&gt;比較常態／Student-t&quot;]
+  A[&quot;GARCH 1 定階&lt;br/&gt;殘差平方的 PACF；從 GARCH(1,1) 起手&quot;] --&gt; B[&quot;GARCH 2 估計&lt;br/&gt;條件最大概似，均值與波動度一起估&lt;br/&gt;比較常態／Student-t／skewed-t／GED&quot;]
   B --&gt; C[&quot;GARCH 3 模型檢查&lt;br/&gt;標準化殘差與其平方：Ljung–Box Q(10)&lt;br/&gt;偏態、峰態、QQ 圖&quot;]
   C --&gt; D{&quot;Q 檢定皆 p &gt; 0.05&lt;br/&gt;且分布假設合理？&quot;}
   D --&gt;|是| E[&quot;進入預測&lt;br/&gt;ugarchforecast()：點預測、波動度預測、95% 區間&quot;]
@@ -6312,9 +6430,29 @@ r_t - \mu = a_t,\qquad a_t = \sigma_t\,\epsilon_t,\qquad \sigma_t^2 = \omega + \
 <td>到選模前才問，並說明依據</td>
 </tr>
 <tr class="odd">
-<td>預測</td>
-<td>預測期數 h？要不要留一段測試集評估？</td>
-<td>說明預測越遠區間越寬；測試集按時間順序留最後一段</td>
+<td>確認分析目標</td>
+<td>要分析或預測哪個變數？要不要考慮外生變數？</td>
+<td>要的話問資料來源，並問三種目的中的哪一種；沒有答案前不往下建模</td>
+</tr>
+<tr class="even">
+<td>預測設定</td>
+<td>訓練截止日、訓練窗（附下限）、預測期數（附上限）</td>
+<td>三項都由使用者決定；低於下限先警告</td>
+</tr>
+<tr class="odd">
+<td>選定候選階數</td>
+<td>先給使用者看 ACF／PACF／EACF 與 <code>ar()</code> 建議，再請使用者選 2–3 個</td>
+<td>使用者看過圖表之前不請他選</td>
+</tr>
+<tr class="even">
+<td>AIC 最小的模型落在邊界</td>
+<td>要不要換成階數較低的模型？</td>
+<td>列出特徵根在單位圓外的候選與 AIC、BIC</td>
+</tr>
+<tr class="odd">
+<td>GARCH 訓練段樣本數不足</td>
+<td>低於 500 筆（GARCH(1,1)）或 250 筆（ARCH(1)），要拉長訓練窗還是照做？</td>
+<td>照做時在報告寫明限制</td>
 </tr>
 <tr class="even">
 <td>缺乏足夠領域知識解讀某個結果</td>
@@ -6387,19 +6525,19 @@ r_t - \mu = a_t,\qquad a_t = \sigma_t\,\epsilon_t,\qquad \sigma_t^2 = \omega + \
 <tr class="even">
 <td>識別階數</td>
 <td>平穩序列</td>
-<td>序列圖＋ACF＋PACF、EACF 表與判讀</td>
-<td>列出 2–3 個候選</td>
+<td>ACF＋PACF（並排）、EACF 表與判讀、<code>ar()</code> 建議階數</td>
+<td>使用者選 2–3 個候選</td>
 </tr>
 <tr class="odd">
 <td>5 配適與比較</td>
 <td>候選模型</td>
-<td>AIC、BIC、對數概似比較表</td>
+<td>AIC、BIC、對數概似比較表；採用模型的參數估計表；解讀寫模型式與係數意義</td>
 <td>依使用者選定的準則選模型</td>
 </tr>
 <tr class="even">
 <td>6 殘差診斷</td>
 <td>殘差</td>
-<td>殘差 ACF、Ljung–Box、殘差平方 ACF、ARCH 檢定</td>
+<td>殘差時間圖與殘差 ACF、Ljung–Box Q(10)、殘差平方 ACF 與 Q(10)、ARCH LM 檢定</td>
 <td>第一層未過回到階數識別；第二層有效應接 GARCH</td>
 </tr>
 <tr class="odd">
@@ -6531,17 +6669,132 @@ r_t - \mu = a_t,\qquad a_t = \sigma_t\,\epsilon_t,\qquad \sigma_t^2 = \omega + \
 <td>報告寫入流程字眼（方法選單、「依 skill」）</td>
 <td>報告只陳述最終採用的方法與統計理由</td>
 </tr>
+<tr class="even">
+<td>報告寫「依使用者指示」「依使用者選擇」</td>
+<td>改寫成「本報告採用 X，理由是 Y」，理由為統計或分析設計上的理由</td>
+</tr>
+<tr class="odd">
+<td>方法章寫成已完成分析的結論</td>
+<td>方法章只寫計畫採用的分析架構與判定準則，採用結果寫在各結果章</td>
+</tr>
+<tr class="even">
+<td>ARIMAX 只用「均值加外生變數」</td>
+<td>誤差一律要有 ARMA 階數</td>
+</tr>
+<tr class="odd">
+<td>代入未來實際外生變數值，卻說成事前預測</td>
+<td>標明為「條件預測」；要事前預測就用落後值或另外預測外生變數</td>
+</tr>
+<tr class="even">
+<td>看了樣本外結果再回頭改模型或訓練窗</td>
+<td>樣本外不再是事前的；要依預測表現挑選就另切驗證集</td>
+</tr>
 </tbody>
 </table>
 </section>
+<section id="報告書寫與排版規範" class="level2" data-number="6.9">
+<h2 data-number="6.9" class="anchored" data-anchor-id="報告書寫與排版規範"><span class="header-section-number">6.9</span> 報告書寫與排版規範</h2>
+<ul>
+<li><strong>方法章與結果章分工</strong>：「資料說明與分析方法」只寫資料、研究目的、預計步驟、各檢定的 H₀ 與判定準則、預測設定；轉換、差分、採用的模型等結果寫在各自的結果章。</li>
+<li><strong>文字風格</strong>：客觀、第三人稱；不寫「方便讀者複核」「經典教學序列」等字句，不寫流程與工具自述。</li>
+<li><strong>圖</strong>：圖內不放主標題，圖名由圖說給；ACF／PACF 類的圖（含殘差 ACF、殘差平方 ACF、標準化殘差 ACF）一律 base R 風格、不畫 lag 0、到 lag 20、橫軸標 Lag；日期軸寫數字、刻度約 8–15 個；殘差圖縱軸標 Residual；每條參考線要在圖例或圖說交代；不畫箱形圖。</li>
+<li><strong>表</strong>：一律用 flextable 三線表；表與圖的標題用 chunk 的 <code>#| tbl-cap</code>／<code>#| fig-cap</code>（<code>set_caption()</code> 的文字在 Quarto HTML 不會顯示）；筆數等整數不顯示小數。</li>
+<li><strong>程式碼與語言</strong>：報告內建程式碼折疊（<code>code-fold: true</code> 搭配 <code>echo: true</code>）；中文一律正體中文，YAML 設 <code>lang: zh-TW</code>，不中英混雜；預設不附 sessionInfo。</li>
+</ul>
 </section>
-<section id="限制與參考資料" class="level1" data-number="7">
-<h1 data-number="7"><span class="header-section-number">7</span> 限制與參考資料</h1>
+</section>
+<section id="範例資料集" class="level1" data-number="7">
+<h1 data-number="7"><span class="header-section-number">7</span> 範例資料集</h1>
+<div class="chapter-lead">
+<p>附在 <code>examples/data/</code> 的三組資料，供測試 skill 使用：各是什麼資料、打算用時間序列方法完成什麼分析目標</p>
+</div>
+<p>三組資料分別對應 skill 的三種主要用法：<strong>單變量 ARMA＋預測</strong>、<strong>ARCH／GARCH 波動度模型</strong>、<strong>外生變數（迴歸加時間序列誤差）</strong>。只附原始資料，不附分析結果，測試者可以從頭用 skill 走一次流程。</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 20%">
+<col style="width: 20%">
+<col style="width: 20%">
+<col style="width: 20%">
+<col style="width: 20%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>檔案</th>
+<th>資料</th>
+<th>期間與頻率</th>
+<th>筆數</th>
+<th>來源</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>nvda_daily.csv</code></td>
+<td>NVIDIA（NVDA）每日收盤價：<code>date</code>、<code>adj_close</code>（調整後收盤價）、<code>close</code></td>
+<td>2023-01-03 至 2026-11-19，交易日</td>
+<td>975</td>
+<td>Yahoo Finance，以 R 套件 <code>quantmod</code> 取得</td>
+</tr>
+<tr class="even">
+<td><code>m-intc7303.csv</code></td>
+<td>Intel 每月報酬：<code>date</code>（年-月）、<code>return</code>（簡單報酬，小數）</td>
+<td>1973-01 至 2003-12，每月</td>
+<td>372</td>
+<td>Tsay《Analysis of Financial Time Series》配套資料，取自 R 套件 <code>FinTS</code> 的 <code>m.intc7303</code></td>
+</tr>
+<tr class="odd">
+<td><code>w-gs1yr.txt</code>、<code>w-gs3yr.txt</code></td>
+<td>美國 1 年期與 3 年期公債固定期限利率：<code>year</code>、<code>mon</code>、<code>day</code>、<code>rate</code>（年利率 %）</td>
+<td>1962-01-05 至 2009-04-10，每週</td>
+<td>各 2,467</td>
+<td>Tsay (2010) 第 3 版配套資料（第 2 章本章資料、第 4 章習題 6）</td>
+</tr>
+</tbody>
+</table>
+<section id="nvidia-日資料報酬率建模與樣本外預測" class="level2" data-number="7.1">
+<h2 data-number="7.1" class="anchored" data-anchor-id="nvidia-日資料報酬率建模與樣本外預測"><span class="header-section-number">7.1</span> NVIDIA 日資料：報酬率建模與樣本外預測</h2>
+<ul>
+<li><strong>資料特性</strong>：股價屬金融資產價格，skill 會先畫價格走勢圖，再轉成對數報酬分析。</li>
+<li><strong>分析目標</strong>：設定訓練截止日（例如 2026-10-30），以截止日以前的報酬建立 ARMA 均值方程，檢查是否有 ARCH 效應；之後對樣本外的交易日做<strong>多步預測</strong>與<strong>固定參數一步預測</strong>，比較實際報酬是否落在 95% 區間內，並由報酬回算價格。</li>
+<li><strong>會用到的方法</strong>：對數報酬、ADF＋KPSS、ACF／PACF／EACF 與 <code>ar()</code> 選階、殘差兩層診斷、預測設定（截止日、訓練窗、預測期數）、報酬回算價格。</li>
+</ul>
+</section>
+<section id="intel-月報酬archgarch-波動度模型" class="level2" data-number="7.2">
+<h2 data-number="7.2" class="anchored" data-anchor-id="intel-月報酬archgarch-波動度模型"><span class="header-section-number">7.2</span> Intel 月報酬：ARCH／GARCH 波動度模型</h2>
+<ul>
+<li><strong>資料特性</strong>：FinTS 文件說明為<strong>簡單報酬</strong>；分析前先以 <span class="math inline">\(\log(1 + r)\)</span> 轉成對數報酬。這組資料也是 Tsay 講義 ARCH／GARCH 一章的範例。</li>
+<li><strong>分析目標</strong>：建立報酬的均值方程，確認殘差有 ARCH 效應後，配適 GARCH(1,1)，比較常態與 Student-t 誤差，檢查標準化殘差，並預測未來的報酬與波動度（條件標準差）。</li>
+<li><strong>會用到的方法</strong>：報酬平方的 ACF 與 ARCH LM 檢定、殘差平方的 PACF、GARCH(1,1)、標準化殘差的 Q(10) 與 QQ 圖、<code>ugarchforecast()</code> 的波動度預測與 95% 區間。</li>
+</ul>
+</section>
+<section id="美國公債利率週資料迴歸加時間序列誤差arimaxgarch" class="level2" data-number="7.3">
+<h2 data-number="7.3" class="anchored" data-anchor-id="美國公債利率週資料迴歸加時間序列誤差arimaxgarch"><span class="header-section-number">7.3</span> 美國公債利率週資料：迴歸加時間序列誤差（ARIMAX＋GARCH）</h2>
+<ul>
+<li><strong>資料特性</strong>：兩個利率都不平穩，且高度同步。</li>
+<li><strong>分析目標</strong>：以 1 年期利率的週變化解釋 3 年期利率的週變化。先示範水準對水準的迴歸屬於假性迴歸，改用變化量後，為迴歸誤差選定 ARMA 階數（誤差須有階數），再因殘差的 ARCH 效應接上 GARCH 誤差；最後依使用者選擇的目的做預測（例如代入實際 1 年期利率變化的<strong>條件預測</strong>）。</li>
+<li><strong>會用到的方法</strong>：確認分析目標與外生變數的三種目的、假性迴歸的檢查、迴歸加 MA(1)／AR(1)／ARMA(1,1) 誤差的比較、迴歸加 GARCH 誤差（<code>rugarch</code> 的 <code>external.regressors</code>）。</li>
+</ul>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+說明
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>資料的著作權屬原始提供者：NVIDIA 股價來自 Yahoo Finance，Intel 與公債利率來自 Tsay 的教材配套資料，僅供測試與教學使用。</p>
+</div>
+</div>
+</section>
+</section>
+<section id="限制與參考資料" class="level1" data-number="8">
+<h1 data-number="8"><span class="header-section-number">8</span> 限制與參考資料</h1>
 <div class="chapter-lead">
 <p>這份指南沒有涵蓋什麼，以及內容的出處</p>
 </div>
-<section id="限制" class="level2" data-number="7.1">
-<h2 data-number="7.1" class="anchored" data-anchor-id="限制"><span class="header-section-number">7.1</span> 限制</h2>
+<section id="限制" class="level2" data-number="8.1">
+<h2 data-number="8.1" class="anchored" data-anchor-id="限制"><span class="header-section-number">8.1</span> 限制</h2>
 <ul>
 <li>本指南是<strong>入門說明</strong>，不能取代統計專業判斷。</li>
 <li>說明文字取自下列出處並盡量用白話改寫，<strong>沒有逐篇核對每一個原文細節</strong>；需要嚴謹引用時請回到原始來源。</li>
@@ -6550,8 +6803,8 @@ r_t - \mu = a_t,\qquad a_t = \sigma_t\,\epsilon_t,\qquad \sigma_t^2 = \omega + \
 <li>GARCH 預測區間在 skewed-t、GED 等分布下的分位數，只實測過 Student-t。</li>
 </ul>
 </section>
-<section id="參考資料" class="level2" data-number="7.2">
-<h2 data-number="7.2" class="anchored" data-anchor-id="參考資料"><span class="header-section-number">7.2</span> 參考資料</h2>
+<section id="參考資料" class="level2" data-number="8.2">
+<h2 data-number="8.2" class="anchored" data-anchor-id="參考資料"><span class="header-section-number">8.2</span> 參考資料</h2>
 <p><strong>主要來源</strong></p>
 <ul>
 <li>Tsay, R. S. <em>Analysis of Financial Time Series</em>（課程講義 lec3：Ch.2.7–2.11；lec4：Ch.3）。</li>
@@ -6564,10 +6817,14 @@ r_t - \mu = a_t,\qquad a_t = \sigma_t\,\epsilon_t,\qquad \sigma_t^2 = \omega + \
 <li>Kwiatkowski, D., Phillips, P. C. B., Schmidt, P., &amp; Shin, Y. (1992). Testing the null hypothesis of stationarity against the alternative of a unit root. <em>Journal of Econometrics</em>, 54, 159–178.</li>
 <li>Burnham, K. P., &amp; Anderson, D. R. (2004). Multimodel inference: Understanding AIC and BIC in model selection. <em>Sociological Methods &amp; Research</em>, 33(2), 261–304.</li>
 <li>Moritz, S., &amp; Bartz-Beielstein, T. (2017). imputeTS: Time series missing value imputation in R. <em>The R Journal</em>, 9(1), 207–218.</li>
+<li>Hwang, S., &amp; Valls Pereira, P. L. (2006). Small sample properties of GARCH estimates and persistence. <em>The European Journal of Finance</em>, 12(6–7), 473–494.</li>
+<li>Hyndman, R. J., &amp; Kostenko, A. V. (2007). Minimum sample size requirements for seasonal forecasting models. <em>Foresight</em>, 6, 12–15.</li>
+<li>NIST/SEMATECH e-Handbook of Statistical Methods, §6.4.4.5（引 Chatfield, 1996：ARIMA 至少 50 筆）。</li>
+<li>Tsay, R. S. (2010). <em>Analysis of Financial Time Series</em>（第 3 版）資料檔 <code>w-gs1yr.txt</code>、<code>w-gs3yr.txt</code>。</li>
 <li>Dickey, D. A., &amp; Fuller, W. A. (1979)（單位根檢定）；Engle, R. F. (1982)（ARCH）；Bollerslev, T. (1986)（GARCH）；Guerrero, V. M. (1993)（Box–Cox 參數選擇）。以上以名稱註記，未逐篇查證。</li>
 </ul>
-<section id="本指南與-skill-檔案的對照" class="level3" data-number="7.2.1">
-<h3 data-number="7.2.1" class="anchored" data-anchor-id="本指南與-skill-檔案的對照"><span class="header-section-number">7.2.1</span> 本指南與 skill 檔案的對照</h3>
+<section id="本指南與-skill-檔案的對照" class="level3" data-number="8.2.1">
+<h3 data-number="8.2.1" class="anchored" data-anchor-id="本指南與-skill-檔案的對照"><span class="header-section-number">8.2.1</span> 本指南與 skill 檔案的對照</h3>
 <table class="caption-top table">
 <colgroup>
 <col style="width: 50%">
@@ -6587,6 +6844,26 @@ r_t - \mu = a_t,\qquad a_t = \sigma_t\,\epsilon_t,\qquad \sigma_t^2 = \omega + \
 <tr class="even">
 <td>第 6 章（流程圖、停下來表、原則、誤用）</td>
 <td><code>references/decision-tree.md</code>、<code>references/workflow.drawio</code></td>
+</tr>
+<tr class="odd">
+<td>手動流程的程式碼</td>
+<td><code>references/manual-workflow.md</code></td>
+</tr>
+<tr class="even">
+<td>fpp3 可選工具</td>
+<td><code>references/fpp3-options.md</code></td>
+</tr>
+<tr class="odd">
+<td>ARIMA 到 GARCH 的銜接與 GARCH 預測</td>
+<td><code>references/arima-garch-bridge.md</code></td>
+</tr>
+<tr class="even">
+<td>金融價格資料、報酬回算價格</td>
+<td><code>references/financial.md</code></td>
+</tr>
+<tr class="odd">
+<td>Ljung–Box 的滯後期數</td>
+<td><code>references/ljung-box-lags.md</code></td>
 </tr>
 </tbody>
 </table>
