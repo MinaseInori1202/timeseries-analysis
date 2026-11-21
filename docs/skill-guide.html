@@ -6168,7 +6168,7 @@ r_t - \mu = a_t,\qquad a_t = \sigma_t\,\epsilon_t,\qquad \sigma_t^2 = \omega + \
   STA --&gt;|&quot;非平穩（情況二）&quot;| DIFF[&quot;一般差分 d&lt;br/&gt;差分後重驗&quot;] --&gt; STA
   STA --&gt;|&quot;結果衝突（情況三／四）&quot;| UNC[&quot;並陳結果&lt;br/&gt;由使用者決定 d&quot;] --&gt; ID
   STA --&gt;|&quot;平穩（情況一）&quot;| ID[&quot;5 均值方程&lt;br/&gt;給使用者看 ACF／PACF／EACF&lt;br/&gt;依 ar() 與圖表建議階數&quot;]
-  ID --&gt; PICK[&quot;使用者選 2–3 個候選（不含 ARMA(0,0)）&lt;br/&gt;有外生變數：迴歸加 ARIMA 誤差&quot;]
+  ID --&gt; PICK[&quot;使用者選 2–3 個候選（不含 ARMA(0,0)）&lt;br/&gt;有外生變數：迴歸加 ARIMA 誤差（誤差須有階數）&quot;]
   PICK --&gt; FIT[&quot;配適與比較&lt;br/&gt;依使用者選的準則（AIC／BIC）&quot;]
   FIT --&gt; LB{&quot;6 殘差白噪音？&lt;br/&gt;Ljung–Box Q(10)&quot;}
   LB --&gt;|&quot;否：調整階數&quot;| ID
@@ -6351,7 +6351,7 @@ r_t - \mu = a_t,\qquad a_t = \sigma_t\,\epsilon_t,\qquad \sigma_t^2 = \omega + \
 <tr class="even">
 <td>確認分析目標</td>
 <td>健康檢查結果</td>
-<td>分析目標；是否考慮外生變數與其來源（寫入方法章）</td>
+<td>分析目標；是否考慮外生變數與其來源；納入時是「解釋同期關係（條件預測）」「事前預測（落後值）」或「同期關係＋另外預測 x」哪一種（寫入方法章）</td>
 <td>使用者決定</td>
 </tr>
 <tr class="odd">
