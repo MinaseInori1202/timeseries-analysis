@@ -5563,8 +5563,7 @@ border-bottom: none !important;
   <li><a href="#範例資料集" id="toc-範例資料集" class="nav-link" data-scroll-target="#範例資料集"><span class="header-section-number">7</span> 範例資料集</a>
   <ul class="collapse">
   <li><a href="#nvidia-日資料報酬率建模與樣本外預測" id="toc-nvidia-日資料報酬率建模與樣本外預測" class="nav-link" data-scroll-target="#nvidia-日資料報酬率建模與樣本外預測"><span class="header-section-number">7.1</span> NVIDIA 日資料：報酬率建模與樣本外預測</a></li>
-  <li><a href="#intel-月報酬archgarch-波動度模型" id="toc-intel-月報酬archgarch-波動度模型" class="nav-link" data-scroll-target="#intel-月報酬archgarch-波動度模型"><span class="header-section-number">7.2</span> Intel 月報酬：ARCH／GARCH 波動度模型</a></li>
-  <li><a href="#美國公債利率週資料迴歸加時間序列誤差arimaxgarch" id="toc-美國公債利率週資料迴歸加時間序列誤差arimaxgarch" class="nav-link" data-scroll-target="#美國公債利率週資料迴歸加時間序列誤差arimaxgarch"><span class="header-section-number">7.3</span> 美國公債利率週資料：迴歸加時間序列誤差（ARIMAX＋GARCH）</a></li>
+  <li><a href="#美國公債利率週資料迴歸加時間序列誤差arimaxgarch" id="toc-美國公債利率週資料迴歸加時間序列誤差arimaxgarch" class="nav-link" data-scroll-target="#美國公債利率週資料迴歸加時間序列誤差arimaxgarch"><span class="header-section-number">7.2</span> 美國公債利率週資料：迴歸加時間序列誤差（ARIMAX＋GARCH）</a></li>
   </ul></li>
   <li><a href="#限制與參考資料" id="toc-限制與參考資料" class="nav-link" data-scroll-target="#限制與參考資料"><span class="header-section-number">8</span> 限制與參考資料</a>
   <ul class="collapse">
@@ -6380,81 +6379,86 @@ r_t - \mu = a_t,\qquad a_t = \sigma_t\,\epsilon_t,\qquad \sigma_t^2 = \omega + \
 </thead>
 <tbody>
 <tr class="odd">
+<td>以斜線指令觸發、沒有指定資料</td>
+<td>要分析哪個資料？範例 1 NVIDIA 日資料、範例 2 公債利率週資料、使用者自己的資料</td>
+<td>只問這一題；已指定資料就不問</td>
+</tr>
+<tr class="even">
 <td>每個階段做完</td>
 <td>先給使用者看這一階段的結果，請使用者確認後再進下一階段</td>
 <td>未確認不往下</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td>資料有兩個以上的數值欄位</td>
 <td>列出欄位並告知目前的判斷：只分析一個，還是分別分析？</td>
 <td>不自行挑選；使用者已明確指定時視為只分析該變數，不重問；想用其他欄位解釋某個變數（外生變數）時，健康檢查後再問</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td>資料是多個對象混成的長表</td>
 <td>要不要先協助整理資料？</td>
 <td>未經同意不自行合併</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td>資料類型不明</td>
 <td>這是什麼類型的資料？同時告知目前的判斷</td>
 <td>無法判斷時先問，不自行假設</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td>確認是金融資產價格</td>
 <td>告知將預設轉為對數報酬及理由</td>
 <td>使用者屬共整合、配對交易等情境則保留原始價格並註明</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td>遇到流程沒寫到的情況</td>
 <td>先說明哪裡不在涵蓋範圍，詢問使用者如何處理</td>
 <td>不自行硬套流程</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td>缺失值</td>
 <td>缺失是否帶有資訊？隨機缺失要選哪個處理方式？</td>
 <td>列出選項與依據，由使用者決定</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td>明顯季節性</td>
 <td>預設不處理，是否納入季節差分 D？</td>
 <td>使用者要處理才給 D 的建議並附圖</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td>平穩性結果為情況三或四</td>
 <td>如何決定差分階數？</td>
 <td>並陳兩個結果，由使用者決定</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td>選模準則</td>
 <td>以預測為主，還是想找較精簡、可解釋的結構？</td>
 <td>到選模前才問，並說明依據</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td>確認分析目標</td>
 <td>要分析或預測哪個變數？要不要考慮外生變數？</td>
 <td>要的話問資料來源，並問三種目的中的哪一種；沒有答案前不往下建模</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td>預測設定</td>
 <td>訓練截止日、訓練窗（附下限）、預測期數（附上限）</td>
 <td>三項都由使用者決定；低於下限先警告</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td>選定候選階數</td>
 <td>先給使用者看 ACF／PACF／EACF 與 <code>ar()</code> 建議，再請使用者選 2–3 個</td>
 <td>使用者看過圖表之前不請他選</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td>AIC 最小的模型落在邊界</td>
 <td>要不要換成階數較低的模型？</td>
 <td>列出特徵根在單位圓外的候選與 AIC、BIC</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td>GARCH 訓練段樣本數不足</td>
 <td>低於 500 筆（GARCH(1,1)）或 250 筆（ARCH(1)），要拉長訓練窗還是照做？</td>
 <td>照做時在報告寫明限制</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td>缺乏足夠領域知識解讀某個結果</td>
 <td>這個現象在使用者的領域代表什麼？</td>
 <td>明講不確定，不編造領域解釋</td>
@@ -6706,9 +6710,9 @@ r_t - \mu = a_t,\qquad a_t = \sigma_t\,\epsilon_t,\qquad \sigma_t^2 = \omega + \
 <section id="範例資料集" class="level1" data-number="7">
 <h1 data-number="7"><span class="header-section-number">7</span> 範例資料集</h1>
 <div class="chapter-lead">
-<p>附在 <code>examples/data/</code> 的三組資料，供測試 skill 使用：各是什麼資料、打算用時間序列方法完成什麼分析目標</p>
+<p>附在 <code>examples/data/</code> 的兩組資料，供測試 skill 使用：各是什麼資料、打算用時間序列方法完成什麼分析目標</p>
 </div>
-<p>三組資料分別對應 skill 的三種主要用法：<strong>單變量 ARMA＋預測</strong>、<strong>ARCH／GARCH 波動度模型</strong>、<strong>外生變數（迴歸加時間序列誤差）</strong>。只附原始資料，不附分析結果，測試者可以從頭用 skill 走一次流程。</p>
+<p>以斜線指令 <code>/timeseries-analysis</code> 觸發、沒有指定資料時，skill 會先問要分析哪份資料：範例 1（NVIDIA 日資料）、範例 2（公債利率週資料），或使用者自己的資料。兩組資料分別對應 skill 的兩種主要用法：<strong>單變量 ARMA（必要時接 GARCH）＋預測</strong>，以及<strong>外生變數（迴歸加時間序列誤差，並接 GARCH 誤差）</strong>。只附原始資料，不附分析結果，測試者可以從頭用 skill 走一次流程。</p>
 <table class="caption-top table">
 <colgroup>
 <col style="width: 20%">
@@ -6735,13 +6739,6 @@ r_t - \mu = a_t,\qquad a_t = \sigma_t\,\epsilon_t,\qquad \sigma_t^2 = \omega + \
 <td>Yahoo Finance，以 R 套件 <code>quantmod</code> 取得</td>
 </tr>
 <tr class="even">
-<td><code>m-intc7303.csv</code></td>
-<td>Intel 每月報酬：<code>date</code>（年-月）、<code>return</code>（簡單報酬，小數）</td>
-<td>1973-01 至 2003-12，每月</td>
-<td>372</td>
-<td>Tsay《Analysis of Financial Time Series》配套資料，取自 R 套件 <code>FinTS</code> 的 <code>m.intc7303</code></td>
-</tr>
-<tr class="odd">
 <td><code>w-gs1yr.txt</code>、<code>w-gs3yr.txt</code></td>
 <td>美國 1 年期與 3 年期公債固定期限利率：<code>year</code>、<code>mon</code>、<code>day</code>、<code>rate</code>（年利率 %）</td>
 <td>1962-01-05 至 2009-04-10，每週</td>
@@ -6758,16 +6755,8 @@ r_t - \mu = a_t,\qquad a_t = \sigma_t\,\epsilon_t,\qquad \sigma_t^2 = \omega + \
 <li><strong>會用到的方法</strong>：對數報酬、ADF＋KPSS、ACF／PACF／EACF 與 <code>ar()</code> 選階、殘差兩層診斷、預測設定（截止日、訓練窗、預測期數）、報酬回算價格。</li>
 </ul>
 </section>
-<section id="intel-月報酬archgarch-波動度模型" class="level2" data-number="7.2">
-<h2 data-number="7.2" class="anchored" data-anchor-id="intel-月報酬archgarch-波動度模型"><span class="header-section-number">7.2</span> Intel 月報酬：ARCH／GARCH 波動度模型</h2>
-<ul>
-<li><strong>資料特性</strong>：FinTS 文件說明為<strong>簡單報酬</strong>；分析前先以 <span class="math inline">\(\log(1 + r)\)</span> 轉成對數報酬。這組資料也是 Tsay 講義 ARCH／GARCH 一章的範例。</li>
-<li><strong>分析目標</strong>：建立報酬的均值方程，確認殘差有 ARCH 效應後，配適 GARCH(1,1)，比較常態與 Student-t 誤差，檢查標準化殘差，並預測未來的報酬與波動度（條件標準差）。</li>
-<li><strong>會用到的方法</strong>：報酬平方的 ACF 與 ARCH LM 檢定、殘差平方的 PACF、GARCH(1,1)、標準化殘差的 Q(10) 與 QQ 圖、<code>ugarchforecast()</code> 的波動度預測與 95% 區間。</li>
-</ul>
-</section>
-<section id="美國公債利率週資料迴歸加時間序列誤差arimaxgarch" class="level2" data-number="7.3">
-<h2 data-number="7.3" class="anchored" data-anchor-id="美國公債利率週資料迴歸加時間序列誤差arimaxgarch"><span class="header-section-number">7.3</span> 美國公債利率週資料：迴歸加時間序列誤差（ARIMAX＋GARCH）</h2>
+<section id="美國公債利率週資料迴歸加時間序列誤差arimaxgarch" class="level2" data-number="7.2">
+<h2 data-number="7.2" class="anchored" data-anchor-id="美國公債利率週資料迴歸加時間序列誤差arimaxgarch"><span class="header-section-number">7.2</span> 美國公債利率週資料：迴歸加時間序列誤差（ARIMAX＋GARCH）</h2>
 <ul>
 <li><strong>資料特性</strong>：兩個利率都不平穩，且高度同步。</li>
 <li><strong>分析目標</strong>：以 1 年期利率的週變化解釋 3 年期利率的週變化。先示範水準對水準的迴歸屬於假性迴歸，改用變化量後，為迴歸誤差選定 ARMA 階數（誤差須有階數），再因殘差的 ARCH 效應接上 GARCH 誤差；最後依使用者選擇的目的做預測（例如代入實際 1 年期利率變化的<strong>條件預測</strong>）。</li>
@@ -6783,7 +6772,7 @@ r_t - \mu = a_t,\qquad a_t = \sigma_t\,\epsilon_t,\qquad \sigma_t^2 = \omega + \
 </div>
 </div>
 <div class="callout-body-container callout-body">
-<p>資料的著作權屬原始提供者：NVIDIA 股價來自 Yahoo Finance，Intel 與公債利率來自 Tsay 的教材配套資料，僅供測試與教學使用。</p>
+<p>資料的著作權屬原始提供者：NVIDIA 股價來自 Yahoo Finance，公債利率來自 Tsay 的教材配套資料，僅供測試與教學使用。</p>
 </div>
 </div>
 </section>

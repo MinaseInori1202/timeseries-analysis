@@ -96,7 +96,9 @@ timeseries-analysis/
 
 ## 使用方式
 
-直接用自然語言說明**資料**與**目的**：
+輸入 `/timeseries-analysis` 觸發時，skill 會先問要分析哪份資料：範例 1（NVIDIA 日資料）、範例 2（美國公債利率週資料），或你自己的資料。
+
+也可以直接用自然語言說明**資料**與**目的**：
 
 ```
 我要分析 R 內建的 AirPassengers（1949–1960 每月國際航空旅客數）。
@@ -161,7 +163,7 @@ timeseries-analysis/
 │   ├── skill-guide.html              # 時間序列分析指南（觀念、流程圖、操作規格、範例資料說明），用瀏覽器開啟
 │   └── workflow.png                  # 流程圖圖檔
 ├── examples/
-│   └── data/                         # 測試用範例資料（NVIDIA 日資料、Intel 月報酬、美國公債利率週資料），說明見指南「範例資料集」
+│   └── data/                         # 測試用範例資料（NVIDIA 日資料、美國公債利率週資料），說明見指南「範例資料集」
 └── references/
     ├── manual-workflow.md            # 預設的手動流程（含季節效應的 D 建議）
     ├── fpp3-options.md               # fpp3 可選工具
