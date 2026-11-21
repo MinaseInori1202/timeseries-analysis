@@ -1,0 +1,22 @@
+<mxfile host="app.diagrams.net">
+  <diagram id="garch-branch" name="GARCH 分支">
+    <mxGraphModel dx="1200" dy="800" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1000" pageHeight="760" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="G0" value="GARCH 0　樣本數檢查&#xA;訓練段不到 500 筆（GARCH(1,1)）時先告知，由使用者決定" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;strokeWidth=2;" vertex="1" parent="1"><mxGeometry x="300" y="20" width="400" height="60" as="geometry" /></mxCell>
+        <mxCell id="G1" value="GARCH 1　定階&#xA;殘差平方的 PACF，從 GARCH(1,1) 起手" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#fff3e0;strokeColor=#ef6c00;strokeWidth=2;" vertex="1" parent="1"><mxGeometry x="300" y="120" width="400" height="60" as="geometry" /></mxCell>
+        <mxCell id="G2" value="GARCH 2　估計&#xA;條件最大概似，均值與波動度一起估&#xA;比較常態／Student-t／skewed-t／GED" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#fff3e0;strokeColor=#ef6c00;strokeWidth=2;" vertex="1" parent="1"><mxGeometry x="300" y="220" width="400" height="75" as="geometry" /></mxCell>
+        <mxCell id="G3" value="GARCH 3　模型檢查&#xA;標準化殘差與其平方：Ljung–Box Q(10)&#xA;偏態、峰態、QQ 圖" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#e3f2fd;strokeColor=#1565c0;strokeWidth=2;" vertex="1" parent="1"><mxGeometry x="300" y="335" width="400" height="75" as="geometry" /></mxCell>
+        <mxCell id="D" value="Q 檢定皆 p &gt; 0.05&#xA;且分布假設合理？" style="rhombus;whiteSpace=wrap;html=1;fillColor=#e8f5e9;strokeColor=#2e7d32;strokeWidth=2;" vertex="1" parent="1"><mxGeometry x="370" y="450" width="260" height="110" as="geometry" /></mxCell>
+        <mxCell id="E" value="進入預測&#xA;ugarchforecast()：點預測、&#xA;波動度預測、95% 區間" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#f3e5f5;strokeColor=#6a1b9a;strokeWidth=2;fontStyle=1;" vertex="1" parent="1"><mxGeometry x="330" y="620" width="340" height="75" as="geometry" /></mxCell>
+        <mxCell id="f1" value="" style="edgeStyle=orthogonalEdgeStyle;html=1;endArrow=block;" edge="1" parent="1" source="G0" target="G1"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="f2" value="" style="edgeStyle=orthogonalEdgeStyle;html=1;endArrow=block;" edge="1" parent="1" source="G1" target="G2"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="f3" value="" style="edgeStyle=orthogonalEdgeStyle;html=1;endArrow=block;" edge="1" parent="1" source="G2" target="G3"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="f4" value="" style="edgeStyle=orthogonalEdgeStyle;html=1;endArrow=block;" edge="1" parent="1" source="G3" target="D"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="f5" value="是" style="edgeStyle=orthogonalEdgeStyle;html=1;endArrow=block;" edge="1" parent="1" source="D" target="E"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="f6" value="否：調整階數或改誤差分布" style="edgeStyle=orthogonalEdgeStyle;html=1;endArrow=block;exitX=0;exitY=0.5;entryX=0;entryY=0.5;" edge="1" parent="1" source="D" target="G1"><mxGeometry relative="1" as="geometry"><Array as="points"><mxPoint x="180" y="505" /><mxPoint x="180" y="150" /></Array></mxGeometry></mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
