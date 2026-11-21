@@ -197,13 +197,16 @@ ft_fit <- function(ft, df, max_in = 3.6) {
 
 # 預測與預測區間
 
+<!-- 固定分兩節：（一）多步預測與多步預測區間：forecast(fit, h = h, level = 95)，不放回新資料；
+     （二）固定參數一步預測（有樣本外時）：參數固定，Arima(全序列, model = fit) 的 fitted() 取各期一步預測。 -->
+
 ```{r forecast}
 # fc <- forecast::forecast(fit, h = 預測期數, level = 95)；autoplot(fc) 必附圖例；呈現點預測與 95% 區間（只給 95%）。
 # 取過對數時 Arima(..., lambda = 0)，預測自動反轉換回原尺度（可加 biasadj = TRUE），並在文中寫明。
 # 有接 GARCH 時改用 rugarch::ugarchforecast(fit, n.ahead = h)：fitted(fc) 為點預測、sigma(fc) 為波動度預測，
 #   區間 = 點預測 ± 分位數 × sigma（常態 1.96；Student-t 用 qdist("std", p = 0.975, shape = ...)）；同時呈現波動度預測圖。
 # 使用者要求評估時：按時間順序留出測試集，forecast::accuracy(fc, 測試段)。
-# 訓練截止日、訓練窗長度、預測期數、預測方式一律採用使用者選定的設定（見 SKILL.md「預測設定」），並寫進「資料說明與分析方法」。
+# 訓練截止日、訓練窗長度、預測期數一律採用使用者選定的設定（見 SKILL.md「預測設定」），並寫進「資料說明與分析方法」。
 # 預測圖：點預測要是看得見的線、95% 區間帶、實際值（有樣本外時）；樣本外用底色區隔；日資料橫軸逐日標示日期（月/日）；接 GARCH 時另附條件標準差圖。
 ```
 

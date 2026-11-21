@@ -67,7 +67,7 @@ tsbl <- tsbl |> mutate(log_return = difference(log(close)))
 
 之後把 `log_return` 當成新對象**完整重跑探索分析**，別只轉換就跳過（見 `references/financial.md`的「必做清單」）：
 價格走勢圖、報酬時間圖、六項摘要表（mean/sd/skewness/excess kurtosis/min/max）、
-`ACF(log_return)` 與 `ACF(log_return^2)` ＋ `FinTS::ArchTest()`、以及**平穩性一律做 ADF 與 KPSS 兩者**（見 SKILL.md 第 5 階段；fpp3 版的 KPSS 為 `features(., unitroot_kpss)`）。
+`ACF(log_return)` 與 `ACF(log_return^2)` ＋ `FinTS::ArchTest()`、以及**平穩性一律做 ADF 與 KPSS 兩者**（見 SKILL.md 第 4 階段；fpp3 版的 KPSS 為 `features(., unitroot_kpss)`）。
 
 ## 2. 視覺化探索
 

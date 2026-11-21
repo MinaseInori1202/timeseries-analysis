@@ -151,7 +151,7 @@ tseries::kpss.test(y, null = "Trend")
 
 - 嚴謹一點也可用 `urca::ur.df()` 指定 `type = c("none", "drift", "trend")`（實測 `tseries::adf.test()` 的統計量與 `urca::ur.df(type = "trend")` 完全相同），並在報告說明選了哪一型與理由。`pp.test(y)`（Phillips–Perron）是另一個單位根檢定，可交叉驗證。
 
-**第二步：兩個檢定的結果組合，分四種情況判讀**（完整表格與限制見 SKILL.md 第 5 階段、`textbook-methods.md`）：
+**第二步：兩個檢定的結果組合，分四種情況判讀**（完整表格與限制見 SKILL.md 第 4 階段、`textbook-methods.md`）：
 
 | 情況 | ADF | KPSS | 處理 |
 |---|---|---|---|

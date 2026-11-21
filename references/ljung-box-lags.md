@@ -31,15 +31,15 @@
 | 檢定對象 | 預設 m |
 |---|---|
 | **一階動差**：ARMA 殘差、報酬序列的 Ljung–Box | **m = 10**；有季節性時，m 至少涵蓋一個完整季節週期（月資料 12、季資料 12 為 Tsay 慣例）|
-| **GARCH 配適後**：標準化殘差 `ã_t` **及其平方** `ã_t²` | **各報 Q(10) 與 Q(20)**（共 4 個統計量），先看 10，再用 20 確認較長期 |
-| **ARCH 效應檢定**（GARCH 之前，檢原始殘差／報酬的平方） | **m = 12**（Tsay 的 `ArchTest(lags = 12)` 與 Q(12)）；資料很短時可降低 |
+| **GARCH 配適後**：標準化殘差 `ã_t` **及其平方** `ã_t²` | **各報 Q(10)**（共 2 個統計量）。Tsay 講義另報 Q(20) 確認較長期相依，本 skill 為避免報告資訊過多，只報 Q(10) |
+| **ARCH 效應檢定**（GARCH 之前，檢原始殘差／報酬的平方） | 殘差平方的 Ljung–Box **Q(10)** 為主；`ArchTest(lags = 12)`（Tsay）為補充；資料很短時可降低 |
 
 任何情況都必須 **m > 已估計的參數個數**，且報告要寫明所用的 m（假說寫法見 SKILL.md）。
 
 ```r
-# GARCH 配適後：標準化殘差 ã_t 與 ã_t²，各檢 m = 10、20
+# GARCH 配適後：標準化殘差 ã_t 與 ã_t²，各檢 m = 10
 z <- as.numeric(residuals(fit, standardize = TRUE))     # rugarch：標準化殘差
-for (m in c(10, 20)) {
+for (m in 10) {
   q1 <- Box.test(z,   lag = m, type = "Ljung-Box")      # 均值方程是否足夠
   q2 <- Box.test(z^2, lag = m, type = "Ljung-Box")      # 波動度方程是否足夠
   cat(sprintf("m = %2d | ã_t: Q = %.2f (p = %.3f) | ã_t^2: Q = %.2f (p = %.3f)\n",

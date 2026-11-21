@@ -5636,7 +5636,6 @@ border-bottom: none !important;
 <section id="這個-skill-不處理的事" class="level2" data-number="1.2">
 <h2 data-number="1.2" class="anchored" data-anchor-id="這個-skill-不處理的事"><span class="header-section-number">1.2</span> 這個 skill 不處理的事</h2>
 <ul>
-<li><strong>外生變數</strong>：用其他欄位去解釋目標變數（ARIMAX、動態迴歸）。遇到時會告知，請使用者改為只分析目標變數本身，或各變數分別分析。</li>
 <li><strong>季節效應</strong>：預設<strong>不處理</strong>，看到明顯季節性時先告知使用者並詢問；使用者需要時，才給季節差分階數 D 的建議。</li>
 <li><strong>長季節與多重季節</strong>（例如日資料的年週期）：不處理，會告知並在報告註明。</li>
 <li><strong>因果與保證</strong>：模型描述的是統計關係，預測區間是「在模型成立的前提下」的區間，不是保證。</li>
@@ -5744,7 +5743,7 @@ r_t - \mu = a_t,\qquad a_t = \sigma_t\,\epsilon_t,\qquad \sigma_t^2 = \omega + \
 <tr class="even">
 <td>分析對象</td>
 <td>有兩個以上數值欄位時，先列出欄位、說明目前的判斷，由使用者選：只分析一個，或分別分析</td>
-<td>使用者已明確指定變數時不重問；想用其他欄位解釋某個變數（外生變數）不處理</td>
+<td>使用者已明確指定變數時不重問；想用其他欄位解釋某個變數（外生變數）時，健康檢查後問分析目標，預設用資料中其他欄位</td>
 </tr>
 <tr class="odd">
 <td>多序列</td>
@@ -5810,7 +5809,7 @@ r_t - \mu = a_t,\qquad a_t = \sigma_t\,\epsilon_t,\qquad \sigma_t^2 = \omega + \
 </tr>
 <tr class="even">
 <td>缺失帶有資訊（例如商店假日休息）</td>
-<td>沒有自動方法可處理（需要假日虛擬變數，屬外生變數，不處理）：請使用者說明原因並決定如何處理</td>
+<td>沒有自動補值方法：請使用者說明原因並決定，例如只取連續的一段，或把假日虛擬變數當外生變數</td>
 </tr>
 <tr class="odd">
 <td>隨機缺失</td>
@@ -6116,7 +6115,7 @@ r_t - \mu = a_t,\qquad a_t = \sigma_t\,\epsilon_t,\qquad \sigma_t^2 = \omega + \
 <ol type="1">
 <li><strong>定階</strong>：看殘差平方的 PACF，寫出顯著的落後期，據此列出 ARCH(q) 候選；另以 GARCH(1,1) 為候選一併比較。</li>
 <li><strong>估計</strong>：條件最大概似，均值與波動度一起估（<code>rugarch</code> 或 <code>fGarch</code>）；誤差分布比較常態與 Student-t（報酬厚尾常用 Student-t）。</li>
-<li><strong>模型檢查</strong>：對<strong>標準化殘差</strong>與其平方各報 Ljung–Box Q(10)、Q(20)（前者檢查均值方程是否足夠，後者檢查波動度方程是否足夠），再用標準化殘差的偏態、峰態與 QQ 圖檢查分布假設。</li>
+<li><strong>模型檢查</strong>：對<strong>標準化殘差</strong>與其平方各報 Ljung–Box Q(10)（前者檢查均值方程是否足夠，後者檢查波動度方程是否足夠），再用標準化殘差的偏態、峰態與 QQ 圖檢查分布假設。</li>
 <li><strong>判斷</strong>：Q 檢定皆 p &gt; 0.05 且分布假設合理 → 進入預測；否則調整階數、改誤差分布或換模型（EGARCH、TGARCH 處理大跌與大漲的不對稱影響），重新配適；仍未解決的限制如實寫進報告。</li>
 </ol>
 <p><strong>講義例子</strong>：S&amp;P 500 月超額報酬，GARCH(1,1) 的兩個係數相加 0.9767；標準化殘差的 Q(10)、Q(20) 的 p 值為 0.34、0.23，其平方為 0.27、0.54，皆不顯著，模型適切。</p>
@@ -6155,31 +6154,43 @@ r_t - \mu = a_t,\qquad a_t = \sigma_t\,\epsilon_t,\qquad \sigma_t^2 = \omega + \
 <p></p><figure class="figure"><p></p>
 <div>
 <pre class="mermaid mermaid-js">flowchart TD
-  S([&quot;收到帶時間戳記的資料&quot;]) --&gt; H[&quot;1 資料健康檢查&lt;br/&gt;多個數值欄位先問分析哪個；&lt;br/&gt;多對象長表先問是否整理&quot;]
-  H --&gt; PS[&quot;預測設定（要做預測時）&lt;br/&gt;截止日、訓練窗、預測期數與上限、預測方式&quot;] --&gt; MISS{&quot;資料有缺失？&quot;}
-  MISS --&gt;|是| IMP[&quot;2 缺失值處理&lt;br/&gt;先判斷是否帶有資訊；&lt;br/&gt;選項與依據由使用者選；有樣本外時只用訓練段&quot;] --&gt; ST
-  MISS --&gt;|否| ST[&quot;3 建立時間資料結構&quot;] --&gt; V[&quot;4 視覺化探索（原始尺度）&lt;br/&gt;原始序列走勢圖（第一張圖）、落後圖／ACF&quot;] --&gt; VR{&quot;變異數（波動幅度）&lt;br/&gt;隨水準增大？&quot;}
-  VR --&gt;|是| LOG[&quot;對數或 Box–Cox&quot;] --&gt; SEAS
+  S([&quot;開始：帶時間戳記的資料&quot;]) --&gt; H[&quot;1 資料健康檢查&lt;br/&gt;結構、摘要統計、缺失、合理性&lt;br/&gt;（時間資料結構自動建立）&quot;]
+  H --&gt; G[&quot;確認分析目標&lt;br/&gt;要不要考慮外生變數？&lt;br/&gt;要：預設用資料中其他欄位&quot;]
+  G --&gt; PS[&quot;預測設定（要做預測時）&lt;br/&gt;截止日、訓練窗（附下限）&lt;br/&gt;預測期數（附上限）&quot;]
+  PS --&gt; MISS{&quot;資料有缺失？&quot;}
+  MISS --&gt;|是| IMP[&quot;2 缺失值處理&lt;br/&gt;列出選項與依據，由使用者選&lt;br/&gt;有樣本外時只用訓練段&quot;] --&gt; V
+  MISS --&gt;|否| V[&quot;3 視覺化探索（原始尺度）&lt;br/&gt;原始序列走勢圖（第一張圖）、ACF&quot;]
+  V --&gt; VR{&quot;變異數（波動幅度）&lt;br/&gt;隨水準增大？&quot;}
+  VR --&gt;|是| LOG[&quot;對數或 Box–Cox&lt;br/&gt;轉換前後各算一次分段標準差&quot;] --&gt; SEAS
   VR --&gt;|否| SEAS{&quot;明顯季節性？&quot;}
-  SEAS --&gt;|是| SN[&quot;季節性處理確認&lt;br/&gt;預設不處理，是否納入季節差分 D？&quot;]
-  SN --&gt;|要處理| SD[&quot;給 D 的建議（auto.arima）&lt;br/&gt;附 ACF／PACF 圖，由使用者決定&quot;] --&gt; STA
-  SN --&gt;|不處理| STA
-  SEAS --&gt;|否| STA[&quot;5 平穩性檢定&lt;br/&gt;先看圖選 c／ct；ADF 與 KPSS 兩者都做&quot;]
-  STA --&gt; PV{&quot;ADF 與 KPSS&lt;br/&gt;結果組合？（見 B）&quot;}
-  PV --&gt;|&quot;情況一：平穩&quot;| ACF[&quot;ACF／PACF／EACF 識別階數&quot;] --&gt; AR[&quot;候選模型：ARIMA／SARIMA&lt;br/&gt;依 ACF／PACF／EACF 人工定階&quot;] --&gt; FIT
-  PV --&gt;|&quot;情況二：非平穩，差分後重驗&quot;| STA
-  PV --&gt;|&quot;情況三／四：結果衝突&quot;| UNC[&quot;檢查趨勢、異常點與轉折&lt;br/&gt;確認 c／ct 設定；並陳，由使用者決定&quot;]
-  UNC --&gt;|&quot;改設定重做&quot;| STA
-  UNC --&gt;|&quot;使用者決定 d&quot;| ACF
-  FIT[&quot;6 配適與比較&lt;br/&gt;依使用者選定的選模準則比較&quot;] --&gt; RES
-  RES[&quot;7 殘差診斷第一層&lt;br/&gt;Ljung–Box，m = 10&quot;] --&gt; LB{&quot;p &gt; 0.05？&quot;}
-  LB --&gt;|&quot;否：調整階數或季節項&quot;| ACF
-  LB --&gt;|是| ARCH{&quot;殘差平方有 ARCH 效應？&quot;}
-  ARCH --&gt;|是| G[&quot;GARCH 建模（見 C）&quot;] --&gt; FC
-  ARCH --&gt;|否| NG[&quot;寫明波動度固定、不需 GARCH&quot;] --&gt; FC
-  FC[&quot;8 預測與預測區間圖&lt;br/&gt;確認期數 h；點預測與 95% 區間&quot;] --&gt; OUT([&quot;交付：報告（HTML＋qmd）＋乾淨資料&quot;])
-  classDef ask fill:#fff2cc,stroke:#d6b656
-  class H,IMP,SN,SD,UNC,AR,FIT,FC,OUT ask
+  SEAS --&gt;|是| SN[&quot;季節處理確認&lt;br/&gt;預設不處理，由使用者決定 D&quot;] --&gt; STA
+  SEAS --&gt;|否| STA{&quot;4 平穩性檢定&lt;br/&gt;ADF 與 KPSS&quot;}
+  STA --&gt;|&quot;非平穩（情況二）&quot;| DIFF[&quot;一般差分 d&lt;br/&gt;差分後重驗&quot;] --&gt; STA
+  STA --&gt;|&quot;結果衝突（情況三／四）&quot;| UNC[&quot;並陳結果&lt;br/&gt;由使用者決定 d&quot;] --&gt; ID
+  STA --&gt;|&quot;平穩（情況一）&quot;| ID[&quot;5 均值方程&lt;br/&gt;給使用者看 ACF／PACF／EACF&lt;br/&gt;依 ar() 與圖表建議階數&quot;]
+  ID --&gt; PICK[&quot;使用者選 2–3 個候選（不含 ARMA(0,0)）&lt;br/&gt;有外生變數：迴歸加 ARIMA 誤差&quot;]
+  PICK --&gt; FIT[&quot;配適與比較&lt;br/&gt;依使用者選的準則（AIC／BIC）&quot;]
+  FIT --&gt; LB{&quot;6 殘差白噪音？&lt;br/&gt;Ljung–Box Q(10)&quot;}
+  LB --&gt;|&quot;否：調整階數&quot;| ID
+  LB --&gt;|是| ARCH{&quot;ARCH 效應？&lt;br/&gt;殘差平方 ACF＋Q(10)&quot;}
+  ARCH --&gt;|&quot;無（波動度固定）&quot;| M1[&quot;模型定案：ARIMA&lt;br/&gt;（或迴歸加 ARIMA 誤差）&quot;]
+  ARCH --&gt;|&quot;有（波動聚集）&quot;| GA[&quot;GARCH 建模&lt;br/&gt;樣本數檢查；從 GARCH(1,1) 起手&lt;br/&gt;比較常態／Student-t 等誤差分布&quot;]
+  GA --&gt; GC{&quot;標準化殘差診斷&lt;br/&gt;Q(10)、QQ 圖&quot;}
+  GC --&gt;|&quot;未通過：調整階數或誤差分布&quot;| GA
+  GC --&gt;|通過| M2[&quot;模型定案：ARIMA-GARCH&lt;br/&gt;（或迴歸加 GARCH 誤差）&quot;]
+  M1 --&gt; FC[&quot;7 預測&lt;br/&gt;多步預測區間&lt;br/&gt;固定參數一步預測（有樣本外時）&quot;]
+  M2 --&gt; FC
+  FC --&gt; OUT([&quot;交付：report.qmd＋HTML＋乾淨資料&quot;])
+  classDef ask fill:#fff2cc,stroke:#d6b656,stroke-width:2px
+  classDef proc fill:#e3f2fd,stroke:#1565c0,stroke-width:2px
+  classDef model fill:#fff3e0,stroke:#ef6c00,stroke-width:2px
+  classDef dec fill:#e8f5e9,stroke:#2e7d32,stroke-width:2px
+  classDef final fill:#f3e5f5,stroke:#6a1b9a,stroke-width:2px
+  class H,G,PS,IMP,SN,UNC,PICK,FIT ask
+  class V,LOG,DIFF proc
+  class ID,GA model
+  class MISS,VR,SEAS,STA,LB,ARCH,GC dec
+  class M1,M2,FC final
 </pre>
 </div>
 <p></p></figure><p></p>
@@ -6223,7 +6234,7 @@ r_t - \mu = a_t,\qquad a_t = \sigma_t\,\epsilon_t,\qquad \sigma_t^2 = \omega + \
 <div>
 <pre class="mermaid mermaid-js">flowchart TD
   A[&quot;GARCH 1 定階&lt;br/&gt;殘差平方的 PACF；從 GARCH(1,1) 起手&quot;] --&gt; B[&quot;GARCH 2 估計&lt;br/&gt;條件最大概似，均值與波動度一起估&lt;br/&gt;比較常態／Student-t&quot;]
-  B --&gt; C[&quot;GARCH 3 模型檢查&lt;br/&gt;標準化殘差與其平方：Ljung–Box Q(10)、Q(20)&lt;br/&gt;偏態、峰態、QQ 圖&quot;]
+  B --&gt; C[&quot;GARCH 3 模型檢查&lt;br/&gt;標準化殘差與其平方：Ljung–Box Q(10)&lt;br/&gt;偏態、峰態、QQ 圖&quot;]
   C --&gt; D{&quot;Q 檢定皆 p &gt; 0.05&lt;br/&gt;且分布假設合理？&quot;}
   D --&gt;|是| E[&quot;進入預測&lt;br/&gt;ugarchforecast()：點預測、波動度預測、95% 區間&quot;]
   D --&gt;|&quot;否：調整階數、改誤差分布&lt;br/&gt;或換模型（EGARCH／TGARCH）&quot;| A
@@ -6258,7 +6269,7 @@ r_t - \mu = a_t,\qquad a_t = \sigma_t\,\epsilon_t,\qquad \sigma_t^2 = \omega + \
 <tr class="even">
 <td>資料有兩個以上的數值欄位</td>
 <td>列出欄位並告知目前的判斷：只分析一個，還是分別分析？</td>
-<td>不自行挑選；使用者已明確指定時視為只分析該變數，不重問；想用其他欄位解釋某個變數（外生變數）不處理，要告知</td>
+<td>不自行挑選；使用者已明確指定時視為只分析該變數，不重問；想用其他欄位解釋某個變數（外生變數）時，健康檢查後再問</td>
 </tr>
 <tr class="odd">
 <td>資料是多個對象混成的長表</td>
@@ -6338,66 +6349,72 @@ r_t - \mu = a_t,\qquad a_t = \sigma_t\,\epsilon_t,\qquad \sigma_t^2 = \omega + \
 <td>使用者確認分析對象</td>
 </tr>
 <tr class="even">
-<td>預測設定（要做預測時）</td>
-<td>資料起訖與筆數</td>
-<td>截止日、訓練窗（預設全部歷史；下限：ARIMA 50、建議 100，ARCH(1) 250，GARCH(1,1) 500）、預測期數、預測方式（寫入方法章）</td>
-<td>使用者決定；低於下限時先警告</td>
+<td>確認分析目標</td>
+<td>健康檢查結果</td>
+<td>分析目標；是否考慮外生變數與其來源（寫入方法章）</td>
+<td>使用者決定</td>
 </tr>
 <tr class="odd">
+<td>預測設定（要做預測時）</td>
+<td>資料起訖與筆數</td>
+<td>截止日、訓練窗（預設全部歷史；下限：ARIMA 50、建議 100，ARCH(1) 250，GARCH(1,1) 500）、預測期數（寫入方法章）</td>
+<td>使用者決定；低於下限時先警告</td>
+</tr>
+<tr class="even">
 <td>2 缺失值</td>
 <td>含缺失序列（有樣本外時只用訓練段）</td>
 <td>處理方式、補了哪些、理由</td>
 <td>使用者決定</td>
 </tr>
-<tr class="even">
-<td>3–4 結構與視覺化</td>
-<td>時間序列</td>
+<tr class="odd">
+<td>3 視覺化</td>
+<td>時間序列（結構自動建立）</td>
 <td>原始序列走勢圖（第一張圖）、ACF</td>
 <td>使用者確認</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td>變異數穩定</td>
 <td>原始尺度</td>
 <td>各段標準差與平均；必要時對數轉換前後對照</td>
 <td>標準差隨水準上升才轉換</td>
 </tr>
-<tr class="even">
-<td>5 平穩性</td>
+<tr class="odd">
+<td>4 平穩性</td>
 <td>序列圖、ACF／PACF</td>
 <td>ADF 與 KPSS 結果表（含 c／ct 設定、落後期數）、四種情況判讀</td>
 <td>情況一進入定階；二差分重驗；三、四由使用者決定</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td>識別階數</td>
 <td>平穩序列</td>
 <td>序列圖＋ACF＋PACF、EACF 表與判讀</td>
 <td>列出 2–3 個候選</td>
 </tr>
-<tr class="even">
-<td>6 配適與比較</td>
+<tr class="odd">
+<td>5 配適與比較</td>
 <td>候選模型</td>
 <td>AIC、BIC、對數概似比較表</td>
 <td>依使用者選定的準則選模型</td>
 </tr>
-<tr class="odd">
-<td>7 殘差診斷</td>
+<tr class="even">
+<td>6 殘差診斷</td>
 <td>殘差</td>
 <td>殘差 ACF、Ljung–Box、殘差平方 ACF、ARCH 檢定</td>
 <td>第一層未過回到階數識別；第二層有效應接 GARCH</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td>GARCH</td>
 <td>均值方程殘差</td>
 <td>殘差平方 PACF、模型比較、參數表（模型式寫在解讀）、標準化殘差檢查與 QQ 圖</td>
 <td>Q 檢定與分布假設通過才進預測</td>
 </tr>
-<tr class="odd">
-<td>8 預測</td>
+<tr class="even">
+<td>7 預測</td>
 <td>最終模型</td>
-<td>預測圖與 95% 預測區間、預測表；有 GARCH 時加條件標準差圖</td>
+<td>兩節：多步預測與多步預測區間；固定參數一步預測（參數固定，有樣本外時）；有 GARCH 時加條件標準差圖；不列逐期預測明細表</td>
 <td>區間寫明「在模型成立的前提下」</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td>交付</td>
 <td>全部結果</td>
 <td>報告（<code>.qmd</code> 與編譯的 <code>.html</code>）、乾淨資料</td>
@@ -6488,7 +6505,7 @@ r_t - \mu = a_t,\qquad a_t = \sigma_t\,\epsilon_t,\qquad \sigma_t^2 = \omega + \
 </tr>
 <tr class="odd">
 <td>GARCH 後對「原始殘差平方」做 Ljung–Box</td>
-<td>對標準化殘差及其平方各報 Q(10)、Q(20)</td>
+<td>對標準化殘差及其平方各報 Q(10)</td>
 </tr>
 <tr class="even">
 <td>有 ARCH 效應、接了 GARCH，預測卻仍用 ARIMA 的固定寬度區間</td>
@@ -6528,7 +6545,7 @@ r_t - \mu = a_t,\qquad a_t = \sigma_t\,\epsilon_t,\qquad \sigma_t^2 = \omega + \
 <ul>
 <li>本指南是<strong>入門說明</strong>，不能取代統計專業判斷。</li>
 <li>說明文字取自下列出處並盡量用白話改寫，<strong>沒有逐篇核對每一個原文細節</strong>；需要嚴謹引用時請回到原始來源。</li>
-<li><strong>未涵蓋</strong>：外生變數（ARIMAX）、季節效應的完整處理、長季節與多重季節、Tsay 講義中的長記憶模型（ARFIMA）、IGARCH 與 TGARCH 等變體的細節、加權 Ljung–Box 等進階診斷、GARCH 預測的評估（講義指出「不容易做」）。</li>
+<li><strong>未涵蓋</strong>：季節效應的完整處理、長季節與多重季節、Tsay 講義中的長記憶模型（ARFIMA）、IGARCH 與 TGARCH 等變體的細節、加權 Ljung–Box 等進階診斷、GARCH 預測的評估（講義指出「不容易做」）。</li>
 <li>四種情況的判讀準則由指導老師提供，原文未附出處（見第 4 章）。</li>
 <li>GARCH 預測區間在 skewed-t、GED 等分布下的分位數，只實測過 Student-t。</li>
 </ul>

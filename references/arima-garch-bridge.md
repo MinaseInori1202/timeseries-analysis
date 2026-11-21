@@ -2,7 +2,7 @@
 
 本檔是「平穩性確認後」的**建模**細節（整個流程預設就要建模）。
 「該用什麼階數、要不要上 GARCH」這些**判斷與方向**要在報告中點明，並由使用者確認。
-前置：已完成 SKILL.md 的第 5 階段（平穩性、差分、畫出 ACF/PACF 並做基本判讀）。
+前置：已完成 SKILL.md 的第 4 階段（平穩性、差分、畫出 ACF/PACF 並做基本判讀）。
 
 ## SARIMA 定階規則（有週期波動時務必照這個順序）
 
@@ -85,19 +85,19 @@ fit <- ugarchfit(spec, data = returns)  # 丟原始（報酬）序列，rugarch 
 show(fit)
 ```
 
-4. **Tsay 式手動檢查（與 `show()` 並列，報告建議兩者都寫）**：對**標準化殘差 ã<sub>t</sub> 與 ã<sub>t</sub>²** 各檢 **m = 10 與 m = 20**
+4. **Tsay 式手動檢查（與 `show()` 並列，報告建議兩者都寫）**：對**標準化殘差 ã<sub>t</sub> 與 ã<sub>t</sub>²** 各檢 **m = 10**（只報 Q(10)，不另報 Q(20)）
    （ã<sub>t</sub> 檢均值方程、ã<sub>t</sub>² 檢波動度方程；依據與細節見 `ljung-box-lags.md`）：
 
    ```r
    z <- as.numeric(residuals(fit, standardize = TRUE))
-   for (m in c(10, 20)) {
+   for (m in 10) {
      q1 <- Box.test(z,   lag = m, type = "Ljung-Box")
      q2 <- Box.test(z^2, lag = m, type = "Ljung-Box")
      cat(sprintf("m = %2d | ã_t: Q = %.2f (p = %.3f) | ã_t^2: Q = %.2f (p = %.3f)\n",
                  m, q1$statistic, q1$p.value, q2$statistic, q2$p.value))
    }
    ```
-   報告要寫 H₀（標準化殘差在 m 期內無自相關）、H₁、四個 Q 值與 p 值，並判讀：全部 p > 0.05 → 均值與波動度方程皆足夠。
+   報告要寫 H₀（標準化殘差在 m 期內無自相關）、H₁、兩個 Q 值與 p 值，並判讀：全部 p > 0.05 → 均值與波動度方程皆足夠。
 
 **當兩個加權 Ljung-Box 的 p 值都 > 0.05**：代表不論是漲跌趨勢（均值）或風險波動（變異數），
 都已被模型完整捕捉——分析才算真正完善。
