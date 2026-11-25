@@ -94,6 +94,10 @@ timeseries-analysis/
 
 ---
 
+## 指南
+
+線上閱讀：<https://minaseinori1202.github.io/timeseries-analysis/>（觀念、決策流程圖、操作規格與範例資料說明）。
+
 ## 使用方式
 
 輸入 `/timeseries-analysis` 觸發時，skill 會先問要分析哪份資料：範例 1（NVIDIA 日資料）、範例 2（美國公債利率週資料），或你自己的資料。
