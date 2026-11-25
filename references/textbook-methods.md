@@ -161,7 +161,7 @@
   - **情況二**：ADF 不拒絕、KPSS 拒絕 → 明確非平穩，要差分（或先取對數）再重新檢定。
   - **情況三**：兩者都不拒絕 → 資訊不足（常見於樣本太少或有明顯轉折）。沒有強烈證據，建議增加樣本數、看圖檢查異常點與明顯轉折。
   - **情況四**：兩者都拒絕 → 可能是趨勢平穩，或具有分數整合特性。看圖確認有無趨勢，檢查檢定設定（c 或 ct），可嘗試去趨勢。
-- **注意**：結合 ADF 與 KPSS 的做法源自 Kwiatkowski et al. (1992)，KPSS 對分數整合序列的檢定力見 Lee & Schmidt (1996), *Journal of Econometrics*（僅核對題名）。不同資料來源對「兩者結論衝突」的稱呼不一致（例如 statsmodels 文件把「ADF 不拒絕、KPSS 不拒絕」稱為趨勢平穩），所以情況三、四本 skill 一律列出各項結果，不自動判定，由使用者決定。
+- **注意**：結合 ADF 與 KPSS 的做法源自 Kwiatkowski et al. (1992)，KPSS 對分數整合序列的檢定力見 Lee & Schmidt (1996), *Journal of Econometrics*（僅核對題名）。不同資料來源對「兩者結論衝突」的稱呼不一致（例如 statsmodels 文件（<https://www.statsmodels.org/stable/examples/notebooks/generated/stationarity_detrending_adf_kpss.html>）把「ADF 不拒絕、KPSS 不拒絕」稱為趨勢平穩），所以情況三、四本 skill 一律列出各項結果，不自動判定，由使用者決定。
 - **出處**：同上。
 
 ### 季節效應與季節差分階數 D（使用者需要時）

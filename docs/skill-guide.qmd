@@ -68,7 +68,7 @@ format:
 | 檔案 | 資料 | 期間與頻率 | 筆數 | 來源 |
 |---|---|---|---|---|
 | `nvda_daily.csv` | NVIDIA（NVDA）每日收盤價：`date`、`adj_close`（調整後收盤價）、`close` | 2023-01-03 至 2026-11-19，交易日 | 975 | Yahoo Finance，以 R 套件 `quantmod` 取得 |
-| `w-gs1yr.txt`、`w-gs3yr.txt` | 美國 1 年期與 3 年期公債固定期限利率：`year`、`mon`、`day`、`rate`（年利率 %） | 1962-01-05 至 2009-04-10，每週 | 各 2,467 | Tsay (2010) 第 3 版配套資料（第 2 章本章資料、第 4 章習題 6） |
+| `w-gs1yr.txt`、`w-gs3yr.txt` | 美國 1 年期與 3 年期公債固定期限利率：`year`、`mon`、`day`、`rate`（年利率 %） | 1962-01-05 至 2009-04-10，每週 | 各 2,467 | Tsay (2010) 第 3 版配套資料（第 2 章本章資料、第 4 章習題 6），下載頁：<https://faculty.chicagobooth.edu/ruey-s-tsay/research/analysis-of-financial-time-series-3rd-edition> |
 
 ## NVIDIA 日資料：報酬率建模與樣本外預測
 
@@ -335,7 +335,7 @@ $$
 | 四 | 拒絕 H₀ | 拒絕 H₀ | 可能是**趨勢平穩**或具**分數整合**特性：看圖確認有無趨勢、檢查 c／ct 設定、可嘗試去趨勢。把 ADF 與 KPSS 的統計量、p 值與結論都列在報告中，由使用者決定 |
 
 ::: {.callout-warning}
-結合 ADF 與 KPSS 的做法源自 Kwiatkowski, Phillips, Schmidt & Shin (1992)。不同資料來源對「兩者結論衝突」的稱呼不一致（例如 statsmodels 文件把「兩者都不拒絕」稱為趨勢平穩），所以情況三、四一律把兩個檢定的結果都列出來，不自動判定。
+結合 ADF 與 KPSS 的做法源自 Kwiatkowski, Phillips, Schmidt & Shin (1992)。不同資料來源對「兩者結論衝突」的稱呼不一致（例如 statsmodels 文件（<https://www.statsmodels.org/stable/examples/notebooks/generated/stationarity_detrending_adf_kpss.html>）把「兩者都不拒絕」稱為趨勢平穩），所以情況三、四一律把兩個檢定的結果都列出來，不自動判定。
 :::
 
 **一般差分階數 d**：先看序列的 ACF 圖（緩慢遞減提示仍不平穩），再依四種情況判斷。p 值落在邊際（約 0.05–0.10）要註明，並以差分後的 ACF 與殘差診斷檢視是否過度差分。`ndiffs()` 的預設只看 KPSS，不用來決定 d。使用者選擇處理季節時，d 對季節差分後的序列判斷。預設不處理季節時對原序列判斷，並在報告註明季節可能干擾檢定結果。
@@ -473,6 +473,7 @@ $$
 | 時機 | 問什麼 | 回答前／答不上來時 |
 |---|---|---|
 | 以斜線指令觸發、沒有指定資料 | 要分析哪個資料？範例 1 NVIDIA 日資料、範例 2 公債利率週資料、使用者自己的資料 | 只問這一題。已指定資料就不問 |
+| 資料確定後 | 想做什麼分析？描述並建模、預測未來、檢驗預測能力（截止日＋樣本外）、用其他變數解釋 | 用選項框問一題，已說明目的就不問 |
 | 每個階段做完 | 先給使用者看這一階段的結果，請使用者確認後再進下一階段 | 未確認不往下 |
 | 資料有兩個以上的數值欄位 | 列出欄位並告知目前的判斷：只分析一個，還是分別分析？ | 不自行挑選。使用者已明確指定時視為只分析該變數，不重問。想用其他欄位解釋某個變數（外生變數）時，健康檢查後再問 |
 | 資料是多個對象混成的長表 | 要不要先協助整理資料？ | 未經同意不自行合併 |
@@ -557,7 +558,7 @@ p 值與函數預設判準都是**證據**，不是自動決策規則。結果�
 - Hwang, S., & Valls Pereira, P. L. (2006). Small sample properties of GARCH estimates and persistence. *The European Journal of Finance*, 12(6–7), 473–494.
 - Hyndman, R. J., & Kostenko, A. V. (2007). Minimum sample size requirements for seasonal forecasting models. *Foresight*, 6, 12–15.
 - NIST/SEMATECH e-Handbook of Statistical Methods, §6.4.4.5（引 Chatfield, 1996：ARIMA 至少 50 筆）。
-- Tsay, R. S. (2010). *Analysis of Financial Time Series*（第 3 版）資料檔 `w-gs1yr.txt`、`w-gs3yr.txt`。
+- Tsay, R. S. (2010). *Analysis of Financial Time Series*（第 3 版）資料檔 `w-gs1yr.txt`、`w-gs3yr.txt`。課本範例資料集：<https://faculty.chicagobooth.edu/ruey-s-tsay/research/analysis-of-financial-time-series-3rd-edition>。
 - Dickey, D. A., & Fuller, W. A. (1979)（單位根檢定）。Engle, R. F. (1982)（ARCH）。Bollerslev, T. (1986)（GARCH）。Guerrero, V. M. (1993)（Box–Cox 參數選擇）。以上以名稱註記，未逐篇查證。
 
 ### 本指南與 skill 檔案的對照
