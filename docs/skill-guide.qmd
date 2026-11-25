@@ -7,7 +7,7 @@ language:
   callout-tip-title: "提示"
   callout-warning-title: "注意"
   callout-important-title: "重要"
-date: "2026-11-21"
+date: "2026-11-25"
 format:
   html:
     theme: flatly
@@ -25,13 +25,60 @@ format:
     html-math-method: mathjax
 ---
 
-# 分析目的與適用問題
+# 拿到一筆時間序列資料：怎麼開始
 
 ::: {.chapter-lead}
 依固定順序完成探索、平穩性判斷、模型配適與比較、殘差診斷，最後給出預測與 95% 預測區間。每個需要選擇的步驟都由使用者決定
 :::
 
 本指南整理 `timeseries-analysis` 這個 skill 的做法，供閱讀報告時查詢：**每一張圖、每一個檢定是什麼、什麼時候用、怎麼看、得到什麼結論**，並附上完整的決策流程圖與操作規格。指南不含推導。
+
+
+以斜線指令 `/timeseries-analysis` 啟動後，skill 先用選項框問兩題，之後的流程依答案分支：
+
+1. **要分析哪份資料？** 範例 1（NVIDIA 日資料）、範例 2（美國公債利率週資料），或自己的資料。
+2. **想做什麼分析？**
+   - **描述資料並建立模型**：走完健康檢查、視覺化、平穩性、建模與殘差診斷，不做預測。
+   - **預測未來**：健康檢查後先問預測期數等設定，最後預測之後幾期。
+   - **檢驗模型的預測能力**：健康檢查後先問截止日、訓練窗與預測期數，截止日之後的資料留作樣本外，最後比對預測與實際值。
+   - **用其他變數解釋這個變數**：健康檢查後問外生變數的資料來源與目的，建模改用迴歸加時間序列誤差。
+
+整個流程如下圖，黃色方塊是需要使用者決定或確認的地方（流程圖的可編輯 draw.io 版本為 `references/workflow.drawio`）：
+
+![整體分析流程（黃色為使用者決定或確認的節點）](workflow.png){width=100% fig-alt="timeseries-analysis 整體分析流程圖"}
+
+# 範例資料集
+
+::: {.chapter-lead}
+附在 `examples/data/` 的兩組資料，供測試 skill 使用：各是什麼資料、打算用時間序列方法完成什麼分析目標
+:::
+
+以斜線指令 `/timeseries-analysis` 觸發、沒有指定資料時，skill 會先問要分析哪份資料：範例 1（NVIDIA 日資料）、範例 2（公債利率週資料），或使用者自己的資料。兩組資料分別對應 skill 的兩種主要用法：**單變量 ARMA（必要時接 GARCH）＋預測**，以及**外生變數（迴歸加時間序列誤差，並接 GARCH 誤差）**。只附原始資料，不附分析結果，測試者可以從頭用 skill 走一次流程。
+
+| 檔案 | 資料 | 期間與頻率 | 筆數 | 來源 |
+|---|---|---|---|---|
+| `nvda_daily.csv` | NVIDIA（NVDA）每日收盤價：`date`、`adj_close`（調整後收盤價）、`close` | 2023-01-03 至 2026-11-19，交易日 | 975 | Yahoo Finance，以 R 套件 `quantmod` 取得 |
+| `w-gs1yr.txt`、`w-gs3yr.txt` | 美國 1 年期與 3 年期公債固定期限利率：`year`、`mon`、`day`、`rate`（年利率 %） | 1962-01-05 至 2009-04-10，每週 | 各 2,467 | Tsay (2010) 第 3 版配套資料（第 2 章本章資料、第 4 章習題 6），下載頁：<https://faculty.chicagobooth.edu/ruey-s-tsay/research/analysis-of-financial-time-series-3rd-edition> |
+
+## NVIDIA 日資料：報酬率建模與樣本外預測
+
+- **對應的流程**：開場選「檢驗模型的預測能力」。單變量 ARMA，殘差有 ARCH 效應時接 GARCH。
+- **資料特性**：股價屬金融資產價格，skill 會先畫價格走勢圖，再轉成對數報酬分析。
+- **分析目標**：設定訓練截止日（例如 2026-10-30），以截止日以前的報酬建立 ARMA 均值方程，檢查是否有 ARCH 效應。之後對樣本外的交易日做**多步預測**與**固定參數一步預測**，比較實際報酬是否落在 95% 區間內，並由報酬回算價格。
+- **會用到的方法**：對數報酬、ADF＋KPSS、ACF／PACF／EACF 與 `ar()` 選階、殘差兩層診斷、預測設定（截止日、訓練窗、預測期數）、報酬回算價格。
+
+## 美國公債利率週資料：迴歸加時間序列誤差（ARIMAX＋GARCH）
+
+- **對應的流程**：開場選「用其他變數解釋這個變數」。迴歸加時間序列誤差（ARIMAX），殘差有 ARCH 效應時接 GARCH 誤差。
+- **資料特性**：兩個利率都不平穩，且高度同步。
+- **分析目標**：以 1 年期利率的週變化解釋 3 年期利率的週變化。兩個利率都不平穩，skill 會先檢查水準對水準迴歸的殘差是否平穩，殘差不平穩表示是假性迴歸，就改用兩者的週變化量建模。之後為迴歸誤差選定 ARMA 階數（誤差須有階數），再因殘差的 ARCH 效應接上 GARCH 誤差。最後依使用者選擇的目的做預測（例如代入實際 1 年期利率變化的**條件預測**）。
+- **會用到的方法**：確認分析目標與外生變數的三種目的、假性迴歸的檢查、迴歸加 MA(1)／AR(1)／ARMA(1,1) 誤差的比較、迴歸加 GARCH 誤差（`rugarch` 的 `external.regressors`）。
+
+::: {.callout-note}
+資料的著作權屬原始提供者：NVIDIA 股價來自 Yahoo Finance，公債利率來自 Tsay 的教材配套資料，僅供測試與教學使用。
+:::
+
+# 使用須知
 
 ## 可以問的問題
 
@@ -55,44 +102,15 @@ format:
 2. 每個階段做完，先給使用者看結果，確認後才往下。
 3. 遇到需要選擇的步驟就停下來，簡述選項、依據與預設做法，由使用者決定。不替使用者選。
 4. 預設是手動、可逐步檢視的做法。fpp3 的自動化工具（`tsibble`、`fable`、`auto.arima()` 等）只在使用者選擇時採用。
-5. 檢定與診斷只是**證據**，不是自動決策規則。結果衝突時，把各項檢定的統計量、p 值與結論都列在報告中，由使用者決定（見第 7 章）。
+5. 檢定與診斷只是**證據**，不是自動決策規則。結果衝突時，把各項檢定的統計量、p 值與結論都列在報告中，由使用者決定（見附錄 E）。
 
-# 範例資料集
-
-::: {.chapter-lead}
-附在 `examples/data/` 的兩組資料，供測試 skill 使用：各是什麼資料、打算用時間序列方法完成什麼分析目標
-:::
-
-以斜線指令 `/timeseries-analysis` 觸發、沒有指定資料時，skill 會先問要分析哪份資料：範例 1（NVIDIA 日資料）、範例 2（公債利率週資料），或使用者自己的資料。兩組資料分別對應 skill 的兩種主要用法：**單變量 ARMA（必要時接 GARCH）＋預測**，以及**外生變數（迴歸加時間序列誤差，並接 GARCH 誤差）**。只附原始資料，不附分析結果，測試者可以從頭用 skill 走一次流程。
-
-| 檔案 | 資料 | 期間與頻率 | 筆數 | 來源 |
-|---|---|---|---|---|
-| `nvda_daily.csv` | NVIDIA（NVDA）每日收盤價：`date`、`adj_close`（調整後收盤價）、`close` | 2023-01-03 至 2026-11-19，交易日 | 975 | Yahoo Finance，以 R 套件 `quantmod` 取得 |
-| `w-gs1yr.txt`、`w-gs3yr.txt` | 美國 1 年期與 3 年期公債固定期限利率：`year`、`mon`、`day`、`rate`（年利率 %） | 1962-01-05 至 2009-04-10，每週 | 各 2,467 | Tsay (2010) 第 3 版配套資料（第 2 章本章資料、第 4 章習題 6），下載頁：<https://faculty.chicagobooth.edu/ruey-s-tsay/research/analysis-of-financial-time-series-3rd-edition> |
-
-## NVIDIA 日資料：報酬率建模與樣本外預測
-
-- **資料特性**：股價屬金融資產價格，skill 會先畫價格走勢圖，再轉成對數報酬分析。
-- **分析目標**：設定訓練截止日（例如 2026-10-30），以截止日以前的報酬建立 ARMA 均值方程，檢查是否有 ARCH 效應。之後對樣本外的交易日做**多步預測**與**固定參數一步預測**，比較實際報酬是否落在 95% 區間內，並由報酬回算價格。
-- **會用到的方法**：對數報酬、ADF＋KPSS、ACF／PACF／EACF 與 `ar()` 選階、殘差兩層診斷、預測設定（截止日、訓練窗、預測期數）、報酬回算價格。
-
-## 美國公債利率週資料：迴歸加時間序列誤差（ARIMAX＋GARCH）
-
-- **資料特性**：兩個利率都不平穩，且高度同步。
-- **分析目標**：以 1 年期利率的週變化解釋 3 年期利率的週變化。先示範水準對水準的迴歸屬於假性迴歸，改用變化量後，為迴歸誤差選定 ARMA 階數（誤差須有階數），再因殘差的 ARCH 效應接上 GARCH 誤差。最後依使用者選擇的目的做預測（例如代入實際 1 年期利率變化的**條件預測**）。
-- **會用到的方法**：確認分析目標與外生變數的三種目的、假性迴歸的檢查、迴歸加 MA(1)／AR(1)／ARMA(1,1) 誤差的比較、迴歸加 GARCH 誤差（`rugarch` 的 `external.regressors`）。
-
-::: {.callout-note}
-資料的著作權屬原始提供者：NVIDIA 股價來自 Yahoo Finance，公債利率來自 Tsay 的教材配套資料，僅供測試與教學使用。
-:::
-
-# 基本觀念
+# 附錄 A　基本觀念 {.unnumbered}
 
 ::: {.chapter-lead}
 平穩、差分、ACF／PACF、ARMA 與 GARCH 這些名詞各自代表什麼
 :::
 
-## 時間序列的三種型態
+## A.1　時間序列的三種型態 {.unnumbered}
 
 - **趨勢**：長期上升或下降。
 - **季節性**：固定週期、與日曆有關的重複起伏（例如每年夏天偏高）。
@@ -100,7 +118,7 @@ format:
 
 分辨季節與循環，看起伏的**時間是否固定**：固定週期是季節性，不固定是循環。（fpp3 §2.3）
 
-## 平穩、白噪音與差分
+## A.2　平穩、白噪音與差分 {.unnumbered}
 
 - **平穩**：序列的統計性質**不隨時間改變**——沒有長期趨勢、沒有季節性、起伏大致一樣大。多數傳統模型（如 ARIMA）要求資料平穩。
 - **白噪音**：完全隨機、各期互不相關的序列，是平穩的。殘差若像白噪音，代表模型已把可用的規律抓完。
@@ -109,7 +127,7 @@ format:
 
 出處：fpp3 §9.1。Tsay 講義 lec3。
 
-## 自相關圖：ACF 與 PACF
+## A.3　自相關圖：ACF 與 PACF {.unnumbered}
 
 - **ACF**：每個落後期 k 的柱子，代表「現在的值」與「k 期前的值」的相關程度。有趨勢時，小落後期的自相關大且為正，隨落後期**緩慢下降**。有季節性時，在**季節週期的倍數**特別大。平穩序列的自相關很快掉到接近 0。
 - **PACF**：只看「k 期前」對現在的**直接**影響（扣掉中間期的間接影響）。
@@ -117,7 +135,7 @@ format:
 
 出處：fpp3 §2.8–2.9、§9.1、§9.5。Tsay 講義 lec3。
 
-## ARMA、ARIMA 與 SARIMA
+## A.4　ARMA、ARIMA 與 SARIMA {.unnumbered}
 
 以 $y_t$ 表示第 t 期的觀測值（例如報酬率），$a_t$ 表示第 t 期的隨機衝擊（白噪音：平均 0、變異數固定、各期互不相關）。
 
@@ -147,7 +165,7 @@ MA 項的正負號依 R 的寫法（$+\theta_j a_{t-j}$）。Tsay 講義寫成 $
 
 出處：fpp3 §9。Tsay 講義 lec3（airline 模型 (0,1,1)(0,1,1)）。
 
-## 波動度：ARCH 與 GARCH
+## A.5　波動度：ARCH 與 GARCH {.unnumbered}
 
 前面只關心「平均水準」有沒有被模型抓住。但金融報酬的**起伏大小**常會群聚——一段時間很平靜，另一段時間很劇烈。講義的基本想法：報酬的衝擊**沒有自相關，但彼此不獨立**，依賴是非線性的，所以要另外檢查「起伏的大小」。
 
@@ -199,18 +217,18 @@ $$
 
 出處：Tsay 講義 lec4、Engle (1982)。
 
-## 資訊準則與誤差分布
+## A.6　資訊準則與誤差分布 {.unnumbered}
 
 - **AIC／BIC**：比較候選模型的分數，**越小越好**，會懲罰太複雜的模型（BIC 懲罰較重）。這是**相對指標**：單一模型的分數沒有意義，至少要兩個候選才比得出來。
 - **Student-t 誤差**：報酬常有厚尾，誤差分布除常態外可選 Student-t、skewed-t、GED。
 
-# 資料輸入與健康檢查
+# 附錄 B　資料輸入與健康檢查 {.unnumbered}
 
 ::: {.chapter-lead}
 分析之前先確認資料長什麼樣，並把需要使用者決定的事問清楚
 :::
 
-## 要確認的事
+## B.1　要確認的事 {.unnumbered}
 
 | 項目 | 做什麼 | 注意 |
 |---|---|---|
@@ -227,17 +245,17 @@ $$
 
 **時間序列不能隨機刪除列**：刪掉中間幾筆會破壞時間間隔與落後關係，讓後面的 ACF、差分全部失真。缺一筆就讓它顯性地缺著。
 
-## 偏態與超額峰態
+## B.2　偏態與超額峰態 {.unnumbered}
 
 敘述統計表中，平均、標準差、最小、最大任何序列都列出。偏態與超額峰態另外處理。偏態看分布偏哪一邊（0 表示左右對稱）。超額峰態看尾巴是否比常態厚（0 表示與常態相當，正值表示極端值較多）。**只在平穩化後的序列**（殘差、差分後、報酬率）上看。有趨勢或季節的原始序列不看，因為水準會隨時間漂移，算出來的數字容易誤導。
 
-## 金融資產價格：預設轉成對數報酬
+## B.3　金融資產價格：預設轉成對數報酬 {.unnumbered}
 
 先依欄位名稱（close、price、adj_close 等）與數值特性判斷資料類型並告知使用者。無法判斷時先問，不自行假設。不是價格資料就不提這題。確認是股價、指數、匯率、加密貨幣收盤價等，**預設先轉成對數報酬**（今天的對數價格減昨天的對數價格，約等於漲跌的百分比），並告知使用者理由：**通常是報酬率才能拿來做時間序列分析。價格只在特定情境（例如共整合、配對交易的長期關係）才會直接分析**。價格通常不平穩、起伏隨價位放大。報酬率通常近似平穩，才適合進入後面的檢定與建模。轉換後的報酬要完整重跑探索：價格走勢圖（第一張圖）與報酬時間圖、六項摘要（平均、標準差、偏態、超額峰態、最小、最大）、報酬與報酬平方的 ACF（並以 ARCH 檢定檢查波動聚集），以及 ADF 與 KPSS。報告有預測時，另加一章「由報酬回算價格」：價格可由起始價精確回算，一步預測的價格＝前一日實際收盤價 × exp(報酬預測)，區間界線同樣換算，價格的點預測是中位預測而非平均預測。
 
 出處：Tsay 講義 lec3、lec4。本 skill 的做法（`references/financial.md`）。
 
-## 確認分析目標與外生變數（ARIMAX）
+## B.4　確認分析目標與外生變數（ARIMAX） {.unnumbered}
 
 健康檢查的結果給使用者看過後，先問**分析目標**（要分析或預測哪個變數、目的為何），再問**要不要考慮外生變數**。
 
@@ -257,13 +275,13 @@ $$
 
 出處：Tsay 講義 lec3（Regression Models with Time Series Errors）。本 skill 的做法。
 
-# 前處理與平穩性
+# 附錄 C　前處理與平穩性 {.unnumbered}
 
 ::: {.chapter-lead}
 先看圖、再用 ADF 與 KPSS 兩個檢定判斷平穩，兩個檢定的結論衝突時，把兩者的結果都列出來，不自動決定
 :::
 
-## 缺失值
+## C.1　缺失值 {.unnumbered}
 
 處理順序為：健康檢查 →（要預測時）預測設定 → **缺失值處理** → 視覺化。缺失會讓後面的圖、ACF、轉換與檢定失真，所以先處理。若已指定截止日，缺失值的判斷與補值**只使用訓練段**，避免用到未來資料。
 
@@ -286,7 +304,7 @@ $$
 
 缺失比例與連續成段沒有文獻給出固定門檻。缺口很長或集中在特定時段時，任何內插都是在猜，要註明。
 
-## 視覺化探索
+## C.2　視覺化探索 {.unnumbered}
 
 **所有資料的第一張圖是原始序列的走勢圖**（未轉換、未差分，價格資料在轉成報酬之前先畫價格走勢圖）。**不畫箱形圖**，異常值只靠時間圖目視。預設用下面這組圖，從整體看到細節：
 
@@ -297,7 +315,7 @@ $$
 
 季節圖（每年疊在一起）與子序列圖（同月份放在一起）**預設不畫**，因為預設不處理季節。使用者選擇處理季節時才補畫。
 
-## 變異數穩定：對數轉換與 Box–Cox
+## C.3　變異數穩定：對數轉換與 Box–Cox {.unnumbered}
 
 - **什麼時候用**：序列水準越高、起伏越大時（例如旅客人數越多，季節高低差越大）。λ = 0 就是取對數。
 - **怎麼判斷**：目的是看變異數（波動幅度）是否隨水準增大。先看原始尺度的圖，再把序列切成連續數段（月、季資料以年為段，沒有年週期或不到兩年時，切成等長的連續數段），比較各段標準差與平均，轉換前後各算一次。轉換前標準差隨平均上升、轉換後不再上升，才有效。**波動幅度沒有隨水準增大就不該硬轉**。取對數後的變化可解讀為比例（百分比）變化。
@@ -307,7 +325,7 @@ $$
 
 出處：Tsay 講義 lec3。fpp3 §3.1。量化檢查為本 skill 的做法。
 
-## 平穩性檢定：ADF 與 KPSS 兩者都做
+## C.4　平穩性檢定：ADF 與 KPSS 兩者都做 {.unnumbered}
 
 | 檢定 | H₀ | p < 0.05 的意思 |
 |---|---|---|
@@ -323,7 +341,7 @@ $$
 | 沒有明顯趨勢、圍繞固定水準 | **c**（只含常數） | `type = "c"` | `null = "Level"` |
 | 有明顯趨勢 | **ct**（常數與趨勢） | `type = "ct"` | `null = "Trend"` |
 
-兩個檢定要用**對應的設定**。設定與圖形不一致是常見的誤判來源。R 實測：同一份資料（log AirPassengers，有趨勢與季節），ct 設定得到「平穩」，c 設定得到「非平穩」，所以要先看圖。KPSS 與 ADF 的 p 值有上下限（0.01、0.10），報告寫成「p < 0.01」或「p > 0.10」。
+兩個檢定要用**對應的設定**。設定與圖形不一致是常見的誤判來源。所以要先看圖再選設定。KPSS 與 ADF 的 p 值有上下限（0.01、0.10），報告寫成「p < 0.01」或「p > 0.10」。
 
 **兩個檢定的結果組合，分四種情況**：
 
@@ -342,7 +360,7 @@ $$
 
 出處：Tsay 講義 lec3（`adfTest` 的 `type`）。fpp3 §9.1。`tseries`、`fUnitRoots` 說明文件。
 
-## 季節效應：預設不處理
+## C.5　季節效應：預設不處理 {.unnumbered}
 
 - ADF 判定平穩**不代表季節已消除**（ADF 不檢驗季節單根），有明顯季節時一定告知使用者。
 - 看圖（時間圖、ACF 在季節週期倍數出現高峰）發現明顯季節性時，先告訴使用者本 skill 預設不處理，並詢問是否處理。
@@ -350,13 +368,13 @@ $$
 
 出處：`forecast::nsdiffs()`、`auto.arima()` 文件。fpp3 §9.1。
 
-# 模型配適、診斷與預測
+# 附錄 D　模型配適、診斷與預測 {.unnumbered}
 
 ::: {.chapter-lead}
 用 ACF／PACF／EACF 定階、比較候選模型，兩層殘差診斷通過後才預測
 :::
 
-## 識別階數
+## D.1　識別階數 {.unnumbered}
 
 平穩後，把 **ACF 與 PACF** 左右並排畫出（base R 風格：有外框、無格線、不畫 lag 0、到 lag 20、橫軸標 Lag），再列出 **EACF** 表輔助定階。
 
@@ -370,7 +388,7 @@ $$
 
 出處：fpp3 §9.5。Tsay 講義 lec3。
 
-## 配適與比較
+## D.2　配適與比較 {.unnumbered}
 
 1. 先把 ACF／PACF 圖與 EACF 表給使用者看，再依 `ar()` 的 AIC 選階（ΔAIC < 2 的階數也列）、ACF／PACF 截斷與 EACF 頂點給建議階數，由使用者選 **2–3 個候選模型**（報告不列網格搜尋或降階比較表），與使用者確認。**候選模型一律不含 ARMA(0,0)（常數均值）**，即使 ACF／PACF／EACF 看不出結構或 `auto.arima()` 選出 (0,0) 也不列入，改從 AR(1)、MA(1)、ARMA(1,1) 與 EACF 的候選中挑 2–3 個。可用 `auto.arima()`（以 BIC）當對照，但不取代人工定階。
 2. 用 `forecast::Arima()` 配適。取過對數時用 `lambda = 0`，預測才會自動反轉換回原尺度。
@@ -382,9 +400,9 @@ $$
 6. 一律**按時間順序**切分訓練段與樣本外，避免時間洩露。
 7. **AIC 最小的模型落在邊界**（標準誤無法計算、特徵根模長約為 1、AR 與 MA 係數近似抵銷）時，如實列出參數估計表與特徵根，問使用者要不要換成階數較低、特徵根在單位圓外的模型。不做概似比檢定，報告不列逐一降階的比較表。換了模型時寫明理由，並註明它的 AIC 不是最小。
 8. 採用的模型一律列出**參數估計表**（估計值、標準誤、z 或 t 值、p 值，無法計算時標「無法計算」），解讀中寫出代入估計值的模型式，並說明各係數的實質意義（例如 AR 係數為負表示反向修正，不顯著的係數只寫「沒有明顯影響」）。
-9. 有外生變數時的做法見第 4 章「確認分析目標與外生變數」。
+9. 有外生變數時的做法見附錄 B「確認分析目標與外生變數」。
 
-## 殘差診斷：兩層都要做
+## D.3　殘差診斷：兩層都要做 {.unnumbered}
 
 殘差是「模型沒解釋掉的部分」，好的模型殘差應沒有規律、像隨機雜訊。
 
@@ -403,7 +421,7 @@ $$
 
 出處：fpp3 §5.4。Tsay 講義 lec3、lec4。
 
-## GARCH 建模
+## D.4　GARCH 建模 {.unnumbered}
 
 0. **樣本數檢查**：訓練段不到 500 筆（GARCH(1,1)）或 250 筆（ARCH(1)）時，先告訴使用者低於 Hwang & Valls Pereira (2006) 建議的下限，估計可能偏誤或無法收斂，由使用者決定拉長訓練窗或照做，並在報告寫明限制。
 1. **定階**：看殘差平方的 PACF，寫出顯著的落後期，據此列出 ARCH(q) 候選。另以 GARCH(1,1) 為候選一併比較。
@@ -413,7 +431,7 @@ $$
 
 **講義例子**：S&P 500 月超額報酬，GARCH(1,1) 的兩個係數相加 0.9767。標準化殘差的 Q(10) p 值為 0.34，其平方為 0.27，皆不顯著，模型適切（講義原文另報 Q(20)，本 skill 的報告只報 Q(10)）。
 
-## 預測與預測區間
+## D.5　預測與預測區間 {.unnumbered}
 
 **預測設定（要做預測時，在確認分析目標之後、缺失值處理之前問）**，三項都由使用者決定，使用者的指定照做：
 
@@ -432,20 +450,20 @@ $$
 
 - **只給 95% 預測區間**：在模型成立的前提下，大約 95% 的實際結果會落在這個區間內。
 - **ARIMA 預測**：`forecast(fit, h, level = 95)`。取過對數時以 `lambda = 0` 配適，預測會自動反轉換回原尺度。固定參數一步預測用 `Arima(全序列, model = fit)` 的 `fitted()`。區間假設殘差無自相關、變異固定且近似常態。
-- **有接 GARCH 時**：用 `rugarch::ugarchforecast()`，點預測取 `fitted()`、波動度預測取 `sigma()`，區間 ＝ 點預測 ± 分位數 × 條件標準差。常態用 1.96。Student-t 要用**標準化 t 的分位數**（`qdist("std", p = 0.975, shape = 估計的 shape)`，例如 shape ≈ 6 時為 1.998，不是 1.96）。預測的波動度會逐步回到長期水準。
-- **限制**：均值方程為常數時，這個區間是精確的。均值含 AR 或 MA 項時，多步區間會偏窄（實測 AR(1)、係數約 0.5 時，h ≥ 5 的真實預測標準差約為所用條件標準差的 1.17 倍），報告要註明。
+- **有接 GARCH 時**：用 `rugarch::ugarchforecast()`，點預測取 `fitted()`、波動度預測取 `sigma()`，區間 ＝ 點預測 ± 分位數 × 條件標準差。常態用 1.96。Student-t 要用**標準化 t 的分位數**（`qdist("std", p = 0.975, shape = 估計的 shape)`，不是 1.96）。預測的波動度會逐步回到長期水準。
+- **限制**：均值方程為常數時，這個區間是精確的。均值含 AR 或 MA 項時，`sigma()` 只是衝擊的條件標準差，多步區間會偏窄，報告要註明。
 - **預測圖的呈現**：點預測是看得見的線，與實際值、95% 區間帶都有圖例。樣本外區段加底色。日資料橫軸逐日標示日期。接 GARCH 時另附條件標準差圖。**不產生逐期預測明細表**。有樣本外實際值時，解讀寫出落在 95% 區間外的期數與日期，不寫雙尾機率。
-- **條件預測**：只有 ARIMAX 選擇「解釋同期關係」並代入實際外生變數值時，章名才稱「條件預測」（見第 4 章）。
+- **條件預測**：只有 ARIMAX 選擇「解釋同期關係」並代入實際外生變數值時，章名才稱「條件預測」（見附錄 B）。
 
-出處：fpp3 §5.4–5.5。Tsay 講義 lec3、lec4。R06（無資料洩漏的樣本外評估）的原則。GARCH 預測的分位數與限制為本 skill 以 R 實測的結果。
+出處：fpp3 §5.4–5.5。Tsay 講義 lec3、lec4。R06（無資料洩漏的樣本外評估）的原則。
 
-# 決策流程圖與操作規格
+# 附錄 E　決策流程與操作規格 {.unnumbered}
 
 ::: {.chapter-lead}
 哪一步做什麼、什麼條件走哪條路、哪裡要停下來等使用者
 :::
 
-## 圖例
+## E.1　圖例 {.unnumbered}
 
 流程圖的圖檔在 `docs/`（`workflow.png`、`adf-kpss.png`、`garch-branch.png`），可編輯的 draw.io 版本為 `references/workflow.drawio`、`docs/adf-kpss.drawio`、`docs/garch-branch.drawio`。
 
@@ -456,19 +474,19 @@ $$
 - 綠色菱形：判斷點。
 - 紫色：模型定案與預測。
 
-## A. 整體流程
+## E.2　A. 整體流程 {.unnumbered}
 
-![整體分析流程（黃色為使用者決定或確認的節點）](workflow.png){width=100% fig-alt="timeseries-analysis 整體分析流程圖"}
+整體流程圖見第 1 章。
 
-## B. ADF 與 KPSS 的四種情況
+## E.3　B. ADF 與 KPSS 的四種情況 {.unnumbered}
 
 ![ADF 與 KPSS 的四種情況（黃色為使用者決定的節點）](adf-kpss.png){width=100% fig-alt="ADF 與 KPSS 四種情況的判讀流程圖"}
 
-## C. GARCH 分支
+## E.4　C. GARCH 分支 {.unnumbered}
 
 ![GARCH 分支（黃色為使用者決定的節點）](garch-branch.png){width=80% fig-alt="GARCH 建模分支流程圖"}
 
-## 何時要停下來等使用者
+## E.5　何時要停下來等使用者 {.unnumbered}
 
 | 時機 | 問什麼 | 回答前／答不上來時 |
 |---|---|---|
@@ -491,7 +509,7 @@ $$
 | GARCH 訓練段樣本數不足 | 低於 500 筆（GARCH(1,1)）或 250 筆（ARCH(1)），要拉長訓練窗還是照做？ | 照做時在報告寫明限制 |
 | 缺乏足夠領域知識解讀某個結果 | 這個現象在使用者的領域代表什麼？ | 明講不確定，不編造領域解釋 |
 
-## 操作規格
+## E.6　操作規格 {.unnumbered}
 
 | 階段 | 輸入 | 輸出（寫入報告） | 通過條件／下一步 |
 |---|---|---|---|
@@ -509,7 +527,7 @@ $$
 | 7 預測 | 最終模型 | 兩節：多步預測與多步預測區間。固定參數一步預測（參數固定，有樣本外時）。有 GARCH 時加條件標準差圖。不列逐期預測明細表 | 區間寫明「在模型成立的前提下」 |
 | 交付 | 全部結果 | 報告（`.qmd` 與編譯的 `.html`）、乾淨資料 | — |
 
-## 原則：檢定與診斷只是證據，不自動決策
+## E.7　原則：檢定與診斷只是證據，不自動決策 {.unnumbered}
 
 p 值與函數預設判準都是**證據**，不是自動決策規則。結果不一致或與判準衝突時：**列出各項檢定結果**（統計量、p 值與結論）、**說明取捨依據**、取捨由**使用者依分析目的決定**。
 
@@ -520,7 +538,7 @@ p 值與函數預設判準都是**證據**，不是自動決策規則。結果�
 | Ljung–Box 或 ARCH 檢定未通過 | 調整後仍未解決的限制，如實寫進報告 |
 | ARCH 檢定沒有效應 | 明寫「波動度可視為固定，不需要 GARCH」，不因結論是「沒有」就略過 |
 
-## 報告書寫與排版規範
+## E.8　報告書寫與排版規範 {.unnumbered}
 
 - **方法章與結果章分工**：「資料說明與分析方法」只寫資料、研究目的、預計步驟、各檢定的 H₀ 與判定準則、預測設定。轉換、差分、採用的模型等結果寫在各自的結果章。
 - **文字風格**：客觀、第三人稱。不寫「方便讀者複核」「經典教學序列」等字句，不寫流程與工具自述。
@@ -528,20 +546,19 @@ p 值與函數預設判準都是**證據**，不是自動決策規則。結果�
 - **表**：一律用 flextable 三線表。表與圖的標題用 chunk 的 `#| tbl-cap`／`#| fig-cap`（`set_caption()` 的文字在 Quarto HTML 不會顯示）。筆數等整數不顯示小數。
 - **程式碼與語言**：報告內建程式碼折疊（`code-fold: true` 搭配 `echo: true`）。中文一律正體中文，YAML 設 `lang: zh-TW`，不中英混雜。預設不附 sessionInfo。
 
-# 限制與參考資料
+# 附錄 F　限制與參考資料 {.unnumbered}
 
 ::: {.chapter-lead}
 這份指南沒有涵蓋什麼，以及內容的出處
 :::
 
-## 限制
+## F.1　限制 {.unnumbered}
 
 - 本指南是**入門說明**，不能取代統計專業判斷。
 - 說明文字取自下列出處並盡量用白話改寫，**沒有逐篇核對每一個原文細節**。需要嚴謹引用時請回到原始來源。
 - **未涵蓋**：季節效應的完整處理、長季節與多重季節、Tsay 講義中的長記憶模型（ARFIMA）、GARCH(1,1) 以外的變體、加權 Ljung–Box 等進階診斷、GARCH 預測的評估（講義指出「不容易做」）。
-- GARCH 預測區間在 skewed-t、GED 等分布下的分位數，只實測過 Student-t。
 
-## 參考資料
+## F.2　參考資料 {.unnumbered}
 
 **主要來源**
 
@@ -550,23 +567,38 @@ p 值與函數預設判準都是**證據**，不是自動決策規則。結果�
 - `forecast` 套件 `nsdiffs()` 說明：<https://pkg.robjhyndman.com/forecast/reference/nsdiffs.html>。
 - R 的 `arima()` 說明文件（允許缺失值）。`forecast::na.interp()` 說明文件。
 
+**R 套件說明中的方法出處**
+
+下列函式的說明文件寫明了方法出自哪篇文獻（以 R 的 `?函式名` 也可查看）：
+
+| 方法 | 套件與函式 | 說明文件引用的文獻 | 說明手冊 |
+|---|---|---|---|
+| KPSS 檢定 | tseries `kpss.test` | Kwiatkowski, Phillips, Schmidt & Shin (1992), *Journal of Econometrics*, 54, 159–178 | <https://cran.r-project.org/web/packages/tseries/tseries.pdf> |
+| ADF 檢定 | tseries `adf.test` | Said & Dickey (1984), *Biometrika*, 71, 599–607、Banerjee 等 (1993) | 同上 |
+| ADF 檢定（c／ct 設定） | fUnitRoots `adfTest`（UnitrootTests） | Dickey & Fuller (1979), *JASA*, 74, 427–431、MacKinnon (1996)、Said & Dickey (1984) | <https://cran.r-project.org/web/packages/fUnitRoots/fUnitRoots.pdf> |
+| Ljung–Box 檢定 | stats `Box.test` | Ljung & Box (1978), *Biometrika*, 65, 297–303 | <https://www.rdocumentation.org/packages/stats/topics/Box.test> |
+| ARCH LM 檢定 | FinTS `ArchTest` | 說明正文寫明是 Engle (1982) 的 LM 檢定，依 Tsay (2005) 的描述 | <https://cran.r-project.org/web/packages/FinTS/FinTS.pdf> |
+| EACF | TSA `eacf` | Tsay & Tiao (1984), *JASA* | <https://cran.r-project.org/web/packages/TSA/TSA.pdf> |
+| Box–Cox 的 λ（Guerrero 法） | forecast `BoxCox.lambda` | Guerrero (1993), *Journal of Forecasting*, 12, 37–48、Box & Cox (1964) | <https://cran.r-project.org/web/packages/forecast/forecast.pdf> |
+| 缺失值插補 | imputeTS（套件說明） | Moritz & Bartz-Beielstein (2017), *The R Journal* | <https://cran.r-project.org/web/packages/imputeTS/imputeTS.pdf> |
+
 **文獻**
 
-- Kwiatkowski, D., Phillips, P. C. B., Schmidt, P., & Shin, Y. (1992). Testing the null hypothesis of stationarity against the alternative of a unit root. *Journal of Econometrics*, 54, 159–178.
-- Burnham, K. P., & Anderson, D. R. (2004). Multimodel inference: Understanding AIC and BIC in model selection. *Sociological Methods & Research*, 33(2), 261–304.
-- Moritz, S., & Bartz-Beielstein, T. (2017). imputeTS: Time series missing value imputation in R. *The R Journal*, 9(1), 207–218.
-- Hwang, S., & Valls Pereira, P. L. (2006). Small sample properties of GARCH estimates and persistence. *The European Journal of Finance*, 12(6–7), 473–494.
-- Hyndman, R. J., & Kostenko, A. V. (2007). Minimum sample size requirements for seasonal forecasting models. *Foresight*, 6, 12–15.
-- NIST/SEMATECH e-Handbook of Statistical Methods, §6.4.4.5（引 Chatfield, 1996：ARIMA 至少 50 筆）。
+- Kwiatkowski, D., Phillips, P. C. B., Schmidt, P., & Shin, Y. (1992). Testing the null hypothesis of stationarity against the alternative of a unit root. *Journal of Econometrics*, 54, 159–178. <https://doi.org/10.1016/0304-4076(92)90104-Y>
+- Burnham, K. P., & Anderson, D. R. (2004). Multimodel inference: Understanding AIC and BIC in model selection. *Sociological Methods & Research*, 33(2), 261–304. <https://doi.org/10.1177/0049124104268644>
+- Moritz, S., & Bartz-Beielstein, T. (2017). imputeTS: Time series missing value imputation in R. *The R Journal*, 9(1), 207–218. <https://doi.org/10.32614/RJ-2017-009>
+- Engle, R. F. (1982). Autoregressive conditional heteroscedasticity with estimates of the variance of United Kingdom inflation. *Econometrica*, 50(4), 987–1008. <https://www.econometricsociety.org/publications/econometrica/1982/07/01/autoregressive-conditional-heteroscedasticity-estimates>
+- Hwang, S., & Valls Pereira, P. L. (2006). Small sample properties of GARCH estimates and persistence. *The European Journal of Finance*, 12(6–7), 473–494. <https://ideas.repec.org/a/taf/eurjfi/v12y2006i6-7p473-494.html>
+- Hyndman, R. J., & Kostenko, A. V. (2007). Minimum sample size requirements for seasonal forecasting models. *Foresight*, 6, 12–15. <https://ideas.repec.org/a/for/ijafaa/y2007i6p12-15.html>
+- NIST/SEMATECH e-Handbook of Statistical Methods, §6.4.4.5（引 Chatfield, 1996：ARIMA 至少 50 筆）。<https://itl.nist.gov/div898/handbook/pmc/section4/pmc445.htm>
 - Tsay, R. S. (2010). *Analysis of Financial Time Series*（第 3 版）資料檔 `w-gs1yr.txt`、`w-gs3yr.txt`。課本範例資料集：<https://faculty.chicagobooth.edu/ruey-s-tsay/research/analysis-of-financial-time-series-3rd-edition>。
-- Dickey, D. A., & Fuller, W. A. (1979)（單位根檢定）。Engle, R. F. (1982)（ARCH）。Bollerslev, T. (1986)（GARCH）。Guerrero, V. M. (1993)（Box–Cox 參數選擇）。以上以名稱註記，未逐篇查證。
 
-### 本指南與 skill 檔案的對照
+### 本指南與 skill 檔案的對照 {.unnumbered}
 
 | 本指南章節 | 對應的 skill 檔案 |
 |---|---|
-| 第 3–6 章（觀念與做法） | `references/textbook-methods.md`、`SKILL.md` 各階段 |
-| 第 7 章（流程圖、停下來表、原則、報告規範） | `references/decision-tree.md`、`references/workflow.drawio` |
+| 附錄 A–D（觀念與做法） | `references/textbook-methods.md`、`SKILL.md` 各階段 |
+| 附錄 E（流程圖、停下來表、原則、報告規範） | `references/decision-tree.md`、`references/workflow.drawio` |
 | 手動流程的程式碼 | `references/manual-workflow.md` |
 | fpp3 可選工具 | `references/fpp3-options.md` |
 | ARIMA 到 GARCH 的銜接與 GARCH 預測 | `references/arima-garch-bridge.md` |
