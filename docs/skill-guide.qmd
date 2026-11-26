@@ -169,48 +169,48 @@ MA 項的正負號依 R 的寫法（$+\theta_j a_{t-j}$）。Tsay 講義寫成 $
 
 ## A.5　波動度：ARCH 與 GARCH {.unnumbered}
 
-前面只關心「平均水準」有沒有被模型抓住。但金融報酬的**起伏大小**常會群聚——一段時間很平靜，另一段時間很劇烈。講義的基本想法：報酬的衝擊**沒有自相關，但彼此不獨立**，依賴是非線性的，所以要另外檢查「起伏的大小」。
+前面只關心「平均水準」有沒有被模型抓住。但金融報酬的**起伏大小**常會群聚——一段時間很平靜，另一段時間很劇烈。
 
 **符號**：
 
 - $r_t$：第 t 期的報酬率。
 - $\mu_t$：均值方程給出的第 t 期平均（例如上一節的 ARMA，或常數 $\mu$）。
-- $a_t = r_t - \mu_t$：均值方程的殘差，也就是第 t 期的衝擊。
-- $\sigma_t^2$：條件變異數，在已知第 t−1 期以前所有資訊下，$a_t$ 的變異數，代表這一期的波動度。
-- $\epsilon_t$：標準化的隨機項，各期獨立、平均 0、變異數 1（常態或標準化的 Student-t）。
+- $\varepsilon_t = r_t - \mu_t$：均值方程的殘差，也就是第 t 期的衝擊。
+- $\sigma_t^2$：條件變異數，在已知第 t−1 期以前所有資訊下，$\varepsilon_t$ 的變異數，代表這一期的波動度。
+- $z_t$：標準化的隨機項，各期獨立、平均 0、變異數 1（常態或標準化的 Student-t）。
 
-衝擊寫成 $a_t = \sigma_t\,\epsilon_t$：$\epsilon_t$ 決定方向與相對大小，$\sigma_t$ 決定這一期的波動有多大。
+衝擊寫成 $\varepsilon_t = \sigma_t\,z_t$：$z_t$ 決定方向與相對大小，$\sigma_t$ 決定這一期的波動有多大。
 
 - **ARCH(q)**：現在的波動度依賴過去 q 期的衝擊大小。
 
 $$
-\sigma_t^2 = \alpha_0 + \alpha_1\, a_{t-1}^2 + \cdots + \alpha_q\, a_{t-q}^2,\qquad \alpha_0 > 0,\ \alpha_i \ge 0
+\sigma_t^2 = \alpha_0 + \alpha_1\, \varepsilon_{t-1}^2 + \cdots + \alpha_q\, \varepsilon_{t-q}^2,\qquad \alpha_0 > 0,\ \alpha_i \ge 0
 $$
 
-  過去的衝擊 $a_{t-i}$ 越大，這一期的條件變異數 $\sigma_t^2$ 就越大，所以大波動之後容易接著大波動。
+  過去的衝擊 $\varepsilon_{t-i}$ 越大，這一期的條件變異數 $\sigma_t^2$ 就越大，所以大波動之後容易接著大波動。
 
 - **GARCH(1,1)**：現在的波動度依賴上一期的衝擊與**上一期的波動度**，能以較少的參數描述波動的持續性。
 
 $$
-\sigma_t^2 = \omega + \alpha_1\, a_{t-1}^2 + \beta_1\, \sigma_{t-1}^2,\qquad \omega > 0,\ \alpha_1 \ge 0,\ \beta_1 \ge 0
+\sigma_t^2 = \omega + \alpha_1\, \varepsilon_{t-1}^2 + \beta_1\, \sigma_{t-1}^2,\qquad \omega > 0,\ \alpha_1 \ge 0,\ \beta_1 \ge 0
 $$
 
   $\alpha_1 + \beta_1 < 1$ 才有固定的長期變異數。越接近 1，波動越持續。
 
-**怎麼檢定有沒有 ARCH 效應**（對均值方程的殘差 $a_t$，T 為樣本數）：
+**怎麼檢定有沒有 ARCH 效應**（對均值方程的殘差 $\varepsilon_t$，T 為樣本數）：
 
-1. **殘差平方的 Ljung–Box 檢定**：H₀ 為 $a_t^2$ 在前 m 期沒有自相關（沒有 ARCH 效應）。
+1. **殘差平方的 Ljung–Box 檢定**：H₀ 為 $\varepsilon_t^2$ 在前 m 期沒有自相關（沒有 ARCH 效應）。
 
 $$
 Q(m) = T(T+2)\sum_{k=1}^{m} \frac{\hat\rho_k^2}{T-k} \;\sim\; \chi^2_m
 $$
 
-   其中 $\hat\rho_k$ 是 $a_t^2$ 的第 k 期樣本自相關。本 skill 取 m = 10。
+   其中 $\hat\rho_k$ 是 $\varepsilon_t^2$ 的第 k 期樣本自相關。本 skill 取 m = 10。
 
 2. **ARCH LM 檢定**（Engle, 1982，作為補充）：做輔助迴歸
 
 $$
-a_t^2 = \alpha_0 + \alpha_1\, a_{t-1}^2 + \cdots + \alpha_m\, a_{t-m}^2 + e_t
+\varepsilon_t^2 = \alpha_0 + \alpha_1\, \varepsilon_{t-1}^2 + \cdots + \alpha_m\, \varepsilon_{t-m}^2 + e_t
 $$
 
    H₀ 為 $\alpha_1 = \cdots = \alpha_m = 0$（沒有 ARCH 效應）。檢定統計量 $LM = T R^2 \sim \chi^2_m$，$R^2$ 是輔助迴歸的判定係數（R 的 `FinTS::ArchTest()` 報告的就是這個統計量）。
